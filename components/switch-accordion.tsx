@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
   DndContext,
   closestCenter,
@@ -11,6 +11,7 @@ import {
   type DragEndEvent,
   DragOverlay,
   type DragStartEvent,
+  type DragOverEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -20,7 +21,6 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useState } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -28,25 +28,43 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { PortGridTable } from "@/components/port-grid-table";
 import type { DeviceWithPorts } from "@/types/port";
-import { Server, GripVertical, ChevronDown, Folder } from "lucide-react";
-import type { DevicesBySection } from "@/hooks/use-device-sections";
+import { Server, GripVertical, ChevronDown, Folder, X, Pencil } from "lucide-react";
+
+const GROUPS_STORAGE_KEY = "portgrid-device-groups";
+const ORDER_STORAGE_KEY = "portgrid-device-order";
+
+interface DeviceGroup {
+  id: string;
+  name: string;
+  deviceIds: number[];
+}
 
 interface SwitchAccordionProps {
-  devicesBySection: DevicesBySection;
-  orderedSections: string[];
-  onMoveDevice: (deviceId: number, toSection: string) => void;
-  onReorderDevices: (sectionName: string, newOrder: number[]) => void;
-  hasSections: boolean;
+  devices: DeviceWithPorts[];
 }
 
-interface SortableDeviceItemProps {
+// Simple drag overlay that doesn't use AccordionItem
+function DragOverlayContent({ device }: { device: DeviceWithPorts }) {
+  return (
+    <div className="border rounded-lg px-4 py-3 bg-background shadow-lg opacity-90">
+      <div className="flex items-center gap-4">
+        <GripVertical className="h-5 w-5 text-muted-foreground" />
+        <Server className="h-5 w-5 text-muted-foreground" />
+        <span className="font-semibold">{device.hostname}</span>
+      </div>
+    </div>
+  );
+}
+
+interface SortableDeviceProps {
   device: DeviceWithPorts;
-  isDragOverlay?: boolean;
+  isOverTarget?: boolean;
 }
 
-function SortableDeviceItem({ device, isDragOverlay }: SortableDeviceItemProps) {
+function SortableDevice({ device, isOverTarget }: SortableDeviceProps) {
   const {
     attributes,
     listeners,
@@ -72,165 +90,224 @@ function SortableDeviceItem({ device, isDragOverlay }: SortableDeviceItemProps) 
     (p) => p.ifAdminStatus === "down"
   ).length;
 
-  const content = (
-    <AccordionItem
-      value={`device-${device.device_id}`}
-      className={`border rounded-lg px-4 ${isDragOverlay ? "shadow-lg bg-background" : ""}`}
-    >
-      <AccordionTrigger className="hover:no-underline">
-        <div className="flex items-center gap-4">
-          <div
-            {...attributes}
-            {...listeners}
-            className="cursor-grab active:cursor-grabbing p-1 -ml-2 hover:bg-muted rounded"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <GripVertical className="h-5 w-5 text-muted-foreground" />
-          </div>
-          <Server className="h-5 w-5 text-muted-foreground" />
-          <span className="font-semibold">{device.hostname}</span>
-          <div className="flex gap-2">
-            <Badge variant="default" className="bg-green-600">
-              {upPorts} up
-            </Badge>
-            {inactivePorts > 0 && (
-              <Badge variant="default" className="bg-amber-500">
-                {inactivePorts} inactive
-              </Badge>
-            )}
-            {disabledPorts > 0 && (
-              <Badge variant="destructive">{disabledPorts} disabled</Badge>
-            )}
-          </div>
-          <span className="text-sm text-muted-foreground">
-            ({device.ports.length} total)
-          </span>
-        </div>
-      </AccordionTrigger>
-      <AccordionContent>
-        <PortGridTable ports={device.ports} />
-      </AccordionContent>
-    </AccordionItem>
-  );
-
-  if (isDragOverlay) {
-    return <div className="opacity-90">{content}</div>;
-  }
-
   return (
     <div ref={setNodeRef} style={style}>
-      {content}
+      <AccordionItem
+        value={`device-${device.device_id}`}
+        className={`border rounded-lg px-4 transition-all ${
+          isOverTarget ? "ring-2 ring-primary ring-offset-2 bg-primary/5" : ""
+        }`}
+      >
+        <AccordionTrigger className="hover:no-underline">
+          <div className="flex items-center gap-4">
+            <div
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing p-1 -ml-2 hover:bg-muted rounded"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <GripVertical className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <Server className="h-5 w-5 text-muted-foreground" />
+            <span className="font-semibold">{device.hostname}</span>
+            <div className="flex gap-2">
+              <Badge variant="default" className="bg-green-600">
+                {upPorts} up
+              </Badge>
+              {inactivePorts > 0 && (
+                <Badge variant="default" className="bg-amber-500">
+                  {inactivePorts} inactive
+                </Badge>
+              )}
+              {disabledPorts > 0 && (
+                <Badge variant="destructive">{disabledPorts} disabled</Badge>
+              )}
+            </div>
+            <span className="text-sm text-muted-foreground">
+              ({device.ports.length} total)
+            </span>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent>
+          <PortGridTable ports={device.ports} />
+        </AccordionContent>
+      </AccordionItem>
     </div>
   );
 }
 
-function DeviceOverlay({ device }: { device: DeviceWithPorts }) {
-  return <SortableDeviceItem device={device} isDragOverlay />;
-}
-
-interface SectionProps {
-  name: string;
+interface GroupHeaderProps {
+  group: DeviceGroup;
   devices: DeviceWithPorts[];
   isExpanded: boolean;
   onToggle: () => void;
+  onRename: (newName: string) => void;
+  onDelete: () => void;
 }
 
-function Section({ name, devices, isExpanded, onToggle }: SectionProps) {
+function GroupHeader({ group, devices, isExpanded, onToggle, onRename, onDelete }: GroupHeaderProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(group.name);
+
   const totalPorts = devices.reduce((sum, d) => sum + d.ports.length, 0);
 
+  const handleSubmit = () => {
+    if (editName.trim()) {
+      onRename(editName.trim());
+    }
+    setIsEditing(false);
+  };
+
   return (
-    <div className="mb-6">
-      <button
-        onClick={onToggle}
-        className="flex items-center gap-3 w-full text-left mb-3 p-2 -ml-2 rounded-lg hover:bg-muted/50 transition-colors"
-      >
+    <div className="flex items-center gap-3 mb-2 p-2 -ml-2 rounded-lg hover:bg-muted/50 transition-colors group">
+      <button onClick={onToggle} className="flex items-center gap-3 flex-1 text-left">
         <ChevronDown
           className={`h-5 w-5 text-muted-foreground transition-transform ${
             isExpanded ? "" : "-rotate-90"
           }`}
         />
         <Folder className="h-5 w-5 text-primary" />
-        <span className="font-semibold text-lg">{name}</span>
+        {isEditing ? (
+          <input
+            type="text"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            onBlur={handleSubmit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSubmit();
+              if (e.key === "Escape") setIsEditing(false);
+            }}
+            onClick={(e) => e.stopPropagation()}
+            className="font-semibold text-lg bg-transparent border-b border-primary focus:outline-none"
+            autoFocus
+          />
+        ) : (
+          <span className="font-semibold text-lg">{group.name}</span>
+        )}
         <span className="text-sm text-muted-foreground">
           ({devices.length} {devices.length === 1 ? "device" : "devices"}, {totalPorts} ports)
         </span>
       </button>
-
-      {isExpanded && (
-        <div className="ml-4 border-l-2 border-muted pl-4">
-          {devices.length === 0 ? (
-            <div className="text-sm text-muted-foreground py-4 text-center">
-              Drag devices here to add them to this section
-            </div>
-          ) : (
-            <SortableContext
-              items={devices.map((d) => d.device_id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <Accordion type="multiple" className="space-y-2">
-                {devices.map((device) => (
-                  <SortableDeviceItem key={device.device_id} device={device} />
-                ))}
-              </Accordion>
-            </SortableContext>
-          )}
-        </div>
-      )}
+      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsEditing(true);
+          }}
+        >
+          <Pencil className="h-3 w-3" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 text-destructive hover:text-destructive"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+        >
+          <X className="h-3 w-3" />
+        </Button>
+      </div>
     </div>
   );
 }
 
-export function SwitchAccordion({
-  devicesBySection,
-  orderedSections,
-  onMoveDevice,
-  onReorderDevices,
-  hasSections,
-}: SwitchAccordionProps) {
+export function SwitchAccordion({ devices }: SwitchAccordionProps) {
+  const [groups, setGroups] = useState<DeviceGroup[]>([]);
+  const [deviceOrder, setDeviceOrder] = useState<number[]>([]);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [activeDevice, setActiveDevice] = useState<DeviceWithPorts | null>(null);
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    () => new Set(orderedSections)
-  );
+  const [overDeviceId, setOverDeviceId] = useState<number | null>(null);
+
+  // Load from localStorage
+  useEffect(() => {
+    try {
+      const storedGroups = localStorage.getItem(GROUPS_STORAGE_KEY);
+      if (storedGroups) {
+        const parsed = JSON.parse(storedGroups);
+        setGroups(parsed);
+        setExpandedGroups(new Set(parsed.map((g: DeviceGroup) => g.id)));
+      }
+      const storedOrder = localStorage.getItem(ORDER_STORAGE_KEY);
+      if (storedOrder) {
+        setDeviceOrder(JSON.parse(storedOrder));
+      }
+    } catch (e) {
+      console.error("Failed to load groups:", e);
+    }
+  }, []);
+
+  // Save groups to localStorage
+  const saveGroups = useCallback((newGroups: DeviceGroup[]) => {
+    setGroups(newGroups);
+    localStorage.setItem(GROUPS_STORAGE_KEY, JSON.stringify(newGroups));
+  }, []);
+
+  // Save order to localStorage
+  const saveOrder = useCallback((newOrder: number[]) => {
+    setDeviceOrder(newOrder);
+    localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(newOrder));
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
+      activationConstraint: { distance: 8 },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
-  // Find which section a device is in
-  const findDeviceSection = (deviceId: number): string | null => {
-    for (const [section, devices] of Object.entries(devicesBySection)) {
-      if (devices.some((d) => d.device_id === deviceId)) {
-        return section;
-      }
-    }
-    return null;
-  };
+  // Get devices not in any group
+  const groupedDeviceIds = useMemo(
+    () => new Set(groups.flatMap((g) => g.deviceIds)),
+    [groups]
+  );
 
-  // Find device by ID across all sections
-  const findDevice = (deviceId: number): DeviceWithPorts | null => {
-    for (const devices of Object.values(devicesBySection)) {
-      const device = devices.find((d) => d.device_id === deviceId);
-      if (device) return device;
-    }
-    return null;
-  };
+  // Sort devices by saved order
+  const sortedDevices = useMemo(() => {
+    if (deviceOrder.length === 0) return devices;
+    const orderMap = new Map(deviceOrder.map((id, idx) => [id, idx]));
+    return [...devices].sort((a, b) => {
+      const aOrder = orderMap.get(a.device_id) ?? Infinity;
+      const bOrder = orderMap.get(b.device_id) ?? Infinity;
+      return aOrder - bOrder;
+    });
+  }, [devices, deviceOrder]);
+
+  const ungroupedDevices = useMemo(
+    () => sortedDevices.filter((d) => !groupedDeviceIds.has(d.device_id)),
+    [sortedDevices, groupedDeviceIds]
+  );
+
+  const deviceMap = useMemo(
+    () => new Map(devices.map((d) => [d.device_id, d])),
+    [devices]
+  );
 
   const handleDragStart = (event: DragStartEvent) => {
-    const device = findDevice(event.active.id as number);
-    setActiveDevice(device);
+    const device = deviceMap.get(event.active.id as number);
+    setActiveDevice(device || null);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const overId = event.over?.id as number | undefined;
+    if (overId && overId !== event.active.id && !groupedDeviceIds.has(overId)) {
+      setOverDeviceId(overId);
+    } else {
+      setOverDeviceId(null);
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveDevice(null);
-    const { active, over } = event;
+    setOverDeviceId(null);
 
+    const { active, over } = event;
     if (!over) return;
 
     const activeId = active.id as number;
@@ -238,46 +315,71 @@ export function SwitchAccordion({
 
     if (activeId === overId) return;
 
-    const activeSection = findDeviceSection(activeId);
-    const overSection = findDeviceSection(overId);
+    // Check if dropping on an ungrouped device to create a group
+    const activeDevice = deviceMap.get(activeId);
+    const overDevice = deviceMap.get(overId);
 
-    if (!activeSection || !overSection) return;
+    if (activeDevice && overDevice && !groupedDeviceIds.has(overId) && !groupedDeviceIds.has(activeId)) {
+      // Create a new group
+      const newGroup: DeviceGroup = {
+        id: `group-${Date.now()}`,
+        name: "New Group",
+        deviceIds: [overId, activeId],
+      };
+      saveGroups([...groups, newGroup]);
+      setExpandedGroups((prev) => new Set([...prev, newGroup.id]));
+      return;
+    }
 
-    if (activeSection === overSection) {
-      // Reorder within section
-      const devices = devicesBySection[activeSection];
-      const oldIndex = devices.findIndex((d) => d.device_id === activeId);
-      const newIndex = devices.findIndex((d) => d.device_id === overId);
-      const newOrder = arrayMove(
-        devices.map((d) => d.device_id),
-        oldIndex,
-        newIndex
-      );
-      onReorderDevices(activeSection, newOrder);
-    } else {
-      // Move to different section
-      onMoveDevice(activeId, overSection);
+    // Reorder ungrouped devices
+    const oldIndex = ungroupedDevices.findIndex((d) => d.device_id === activeId);
+    const newIndex = ungroupedDevices.findIndex((d) => d.device_id === overId);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const newUngrouped = arrayMove(ungroupedDevices, oldIndex, newIndex);
+      saveOrder(newUngrouped.map((d) => d.device_id));
     }
   };
 
-  const toggleSection = (sectionName: string) => {
-    setExpandedSections((prev) => {
+  const toggleGroup = (groupId: string) => {
+    setExpandedGroups((prev) => {
       const next = new Set(prev);
-      if (next.has(sectionName)) {
-        next.delete(sectionName);
+      if (next.has(groupId)) {
+        next.delete(groupId);
       } else {
-        next.add(sectionName);
+        next.add(groupId);
       }
       return next;
     });
   };
 
-  const allDevices = useMemo(
-    () => Object.values(devicesBySection).flat(),
-    [devicesBySection]
-  );
+  const renameGroup = (groupId: string, newName: string) => {
+    saveGroups(groups.map((g) => (g.id === groupId ? { ...g, name: newName } : g)));
+  };
 
-  if (allDevices.length === 0) {
+  const deleteGroup = (groupId: string) => {
+    saveGroups(groups.filter((g) => g.id !== groupId));
+  };
+
+  const removeFromGroup = (groupId: string, deviceId: number) => {
+    const group = groups.find((g) => g.id === groupId);
+    if (!group) return;
+
+    if (group.deviceIds.length <= 2) {
+      // Dissolve group if only 1 device would remain
+      deleteGroup(groupId);
+    } else {
+      saveGroups(
+        groups.map((g) =>
+          g.id === groupId
+            ? { ...g, deviceIds: g.deviceIds.filter((id) => id !== deviceId) }
+            : g
+        )
+      );
+    }
+  };
+
+  if (devices.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
         No devices found matching your filters.
@@ -285,60 +387,97 @@ export function SwitchAccordion({
     );
   }
 
-  // If no sections configured, show flat list
-  if (!hasSections) {
-    const devices = devicesBySection["Uncategorized"] || allDevices;
-    return (
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={devices.map((d) => d.device_id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <Accordion type="multiple" className="space-y-2">
-            {devices.map((device) => (
-              <SortableDeviceItem key={device.device_id} device={device} />
-            ))}
-          </Accordion>
-        </SortableContext>
-        <DragOverlay>
-          {activeDevice && <DeviceOverlay device={activeDevice} />}
-        </DragOverlay>
-      </DndContext>
-    );
-  }
-
-  // Show sectioned view
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      {orderedSections.map((sectionName) => {
-        const devices = devicesBySection[sectionName] || [];
-        // Skip empty sections except Uncategorized
-        if (devices.length === 0 && sectionName !== "Uncategorized") {
-          return null;
-        }
+      {/* Grouped devices */}
+      {groups.map((group) => {
+        const groupDevices = group.deviceIds
+          .map((id) => deviceMap.get(id))
+          .filter((d): d is DeviceWithPorts => d !== undefined);
+
+        if (groupDevices.length === 0) return null;
+
         return (
-          <Section
-            key={sectionName}
-            name={sectionName}
-            devices={devices}
-            isExpanded={expandedSections.has(sectionName)}
-            onToggle={() => toggleSection(sectionName)}
-          />
+          <div key={group.id} className="mb-6">
+            <GroupHeader
+              group={group}
+              devices={groupDevices}
+              isExpanded={expandedGroups.has(group.id)}
+              onToggle={() => toggleGroup(group.id)}
+              onRename={(name) => renameGroup(group.id, name)}
+              onDelete={() => deleteGroup(group.id)}
+            />
+            {expandedGroups.has(group.id) && (
+              <div className="ml-4 border-l-2 border-muted pl-4">
+                <Accordion type="multiple" className="space-y-2">
+                  {groupDevices.map((device) => (
+                    <div key={device.device_id} className="relative group/item">
+                      <AccordionItem
+                        value={`device-${device.device_id}`}
+                        className="border rounded-lg px-4"
+                      >
+                        <AccordionTrigger className="hover:no-underline">
+                          <div className="flex items-center gap-4">
+                            <Server className="h-5 w-5 text-muted-foreground" />
+                            <span className="font-semibold">{device.hostname}</span>
+                            <span className="text-sm text-muted-foreground">
+                              ({device.ports.length} ports)
+                            </span>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <PortGridTable ports={device.ports} />
+                        </AccordionContent>
+                      </AccordionItem>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute -right-2 top-2 h-6 w-6 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                        onClick={() => removeFromGroup(group.id, device.device_id)}
+                        title="Remove from group"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </Accordion>
+              </div>
+            )}
+          </div>
         );
       })}
+
+      {/* Ungrouped devices - sortable */}
+      <SortableContext
+        items={ungroupedDevices.map((d) => d.device_id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <Accordion type="multiple" className="space-y-2">
+          {ungroupedDevices.map((device) => (
+            <SortableDevice
+              key={device.device_id}
+              device={device}
+              isOverTarget={overDeviceId === device.device_id}
+            />
+          ))}
+        </Accordion>
+      </SortableContext>
+
       <DragOverlay>
-        {activeDevice && <DeviceOverlay device={activeDevice} />}
+        {activeDevice && <DragOverlayContent device={activeDevice} />}
       </DragOverlay>
+
+      {groups.length === 0 && ungroupedDevices.length > 1 && (
+        <p className="text-center text-sm text-muted-foreground mt-4">
+          Tip: Drag one device onto another to create a group
+        </p>
+      )}
     </DndContext>
   );
 }

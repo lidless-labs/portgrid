@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { usePorts } from "@/hooks/use-ports";
-import { useDeviceSections } from "@/hooks/use-device-sections";
 import { SwitchAccordion } from "@/components/switch-accordion";
 import { SearchInput } from "@/components/search-input";
 import { VlanFilter } from "@/components/vlan-filter";
@@ -73,15 +72,6 @@ export default function Home() {
       })
       .filter((device) => device.ports.length > 0);
   }, [data, search, vlanFilter]);
-
-  // Use device sections hook
-  const {
-    devicesBySection,
-    orderedSections,
-    moveDeviceToSection,
-    reorderDevicesInSection,
-    hasSections,
-  } = useDeviceSections(filteredDevices, data?.sections || []);
 
   // Calculate totals
   const totals = useMemo(() => {
@@ -202,13 +192,7 @@ export default function Home() {
 
         {/* Device accordions */}
         {!isLoading && !isError && (
-          <SwitchAccordion
-            devicesBySection={devicesBySection}
-            orderedSections={orderedSections}
-            onMoveDevice={moveDeviceToSection}
-            onReorderDevices={reorderDevicesInSection}
-            hasSections={hasSections}
-          />
+          <SwitchAccordion devices={filteredDevices} />
         )}
       </main>
 
