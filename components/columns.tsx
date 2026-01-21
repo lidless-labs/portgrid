@@ -31,15 +31,9 @@ export function createColumns({ getNote, setNote }: ColumnsConfig): ColumnDef<En
       },
     },
     {
-      accessorKey: "port_id",
+      id: "notes",
       header: "Notes",
-      cell: ({ row }) => (
-        <NoteCell
-          portId={row.original.port_id}
-          note={getNote(row.original.port_id)}
-          onNoteChange={(note) => setNote(row.original.port_id, note)}
-        />
-      ),
+      cell: () => <span className="text-blue-500">Test Note</span>,
     },
     {
       accessorKey: "ifAdminStatus",
