@@ -69,8 +69,8 @@ fi
 read -p "Container hostname [portgrid]: " CT_HOSTNAME
 CT_HOSTNAME=${CT_HOSTNAME:-portgrid}
 
-read -p "Container memory in MB [1024]: " CT_MEMORY
-CT_MEMORY=${CT_MEMORY:-1024}
+read -p "Container memory in MB [2048]: " CT_MEMORY
+CT_MEMORY=${CT_MEMORY:-2048}
 
 read -p "Container disk size in GB [8]: " CT_DISK
 CT_DISK=${CT_DISK:-8}
