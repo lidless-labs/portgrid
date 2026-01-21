@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="80" viewBox="0 0 280 80">
+  <defs>
+    <linearGradient id="bar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+  </defs>
+  <!-- Gradient bar -->
+  <rect x="0" y="0" width="280" height="4" rx="2" fill="url(#bar)"/>
+  <!-- 3x3 grid -->
+  <g transform="translate(90, 16)">
+    <rect x="0" y="0" width="14" height="14" rx="2" fill="#22c55e"/>
+    <rect x="16" y="0" width="14" height="14" rx="2" fill="#22c55e"/>
+    <rect x="32" y="0" width="14" height="14" rx="2" fill="#f59e0b"/>
+    <rect x="0" y="16" width="14" height="14" rx="2" fill="#22c55e"/>
+    <rect x="16" y="16" width="14" height="14" rx="2" fill="#ef4444"/>
+    <rect x="32" y="16" width="14" height="14" rx="2" fill="#22c55e"/>
+    <rect x="0" y="32" width="14" height="14" rx="2" fill="#f59e0b"/>
+    <rect x="16" y="32" width="14" height="14" rx="2" fill="#22c55e"/>
+    <rect x="32" y="32" width="14" height="14" rx="2" fill="#22c55e"/>
+  </g>
+  <!-- Text with outline for visibility on any background -->
+  <text x="140" y="72" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="24" font-weight="bold">
+    <tspan fill="#374151">Port</tspan><tspan fill="#22c55e">Grid</tspan>
+  </text>
+</svg>
