@@ -31,6 +31,21 @@
 
 ---
 
+## Usage
+
+### Grouping Devices
+
+Organize related switches into custom groups using drag-and-drop:
+
+1. **Create a group** — Drag one device onto another to combine them into a new group
+2. **Add to existing group** — Drag additional devices into a group to add them
+3. **Rename groups** — Click the group name to edit it
+4. **Remove from group** — Drag a device out of the group back to the main list
+
+Groups are saved to your browser's localStorage and persist across sessions.
+
+---
+
 ## Quick Start
 
 ### Prerequisites
