@@ -294,10 +294,25 @@ export function SwitchAccordion({ devices }: SwitchAccordionProps) {
     setActiveDevice(device || null);
   };
 
+  // Find which group a device belongs to
+  const findDeviceGroup = (deviceId: number): DeviceGroup | undefined => {
+    return groups.find((g) => g.deviceIds.includes(deviceId));
+  };
+
   const handleDragOver = (event: DragOverEvent) => {
     const overId = event.over?.id as number | undefined;
-    if (overId && overId !== event.active.id && !groupedDeviceIds.has(overId)) {
-      setOverDeviceId(overId);
+    const activeId = event.active.id as number;
+
+    if (overId && overId !== activeId) {
+      // Don't highlight if dragging within the same group
+      const activeGroup = findDeviceGroup(activeId);
+      const overGroup = findDeviceGroup(overId);
+
+      if (activeGroup && overGroup && activeGroup.id === overGroup.id) {
+        setOverDeviceId(null);
+      } else {
+        setOverDeviceId(overId);
+      }
     } else {
       setOverDeviceId(null);
     }
@@ -315,12 +330,13 @@ export function SwitchAccordion({ devices }: SwitchAccordionProps) {
 
     if (activeId === overId) return;
 
-    // Check if dropping on an ungrouped device to create a group
-    const activeDevice = deviceMap.get(activeId);
-    const overDevice = deviceMap.get(overId);
+    const activeInGroup = groupedDeviceIds.has(activeId);
+    const overInGroup = groupedDeviceIds.has(overId);
+    const activeGroup = findDeviceGroup(activeId);
+    const overGroup = findDeviceGroup(overId);
 
-    if (activeDevice && overDevice && !groupedDeviceIds.has(overId) && !groupedDeviceIds.has(activeId)) {
-      // Create a new group
+    // Case 1: Both ungrouped - create new group
+    if (!activeInGroup && !overInGroup) {
       const newGroup: DeviceGroup = {
         id: `group-${Date.now()}`,
         name: "New Group",
@@ -331,13 +347,56 @@ export function SwitchAccordion({ devices }: SwitchAccordionProps) {
       return;
     }
 
-    // Reorder ungrouped devices
-    const oldIndex = ungroupedDevices.findIndex((d) => d.device_id === activeId);
-    const newIndex = ungroupedDevices.findIndex((d) => d.device_id === overId);
+    // Case 2: Dragging ungrouped onto grouped device - add to that group
+    if (!activeInGroup && overGroup) {
+      saveGroups(
+        groups.map((g) =>
+          g.id === overGroup.id
+            ? { ...g, deviceIds: [...g.deviceIds, activeId] }
+            : g
+        )
+      );
+      return;
+    }
 
-    if (oldIndex !== -1 && newIndex !== -1) {
-      const newUngrouped = arrayMove(ungroupedDevices, oldIndex, newIndex);
-      saveOrder(newUngrouped.map((d) => d.device_id));
+    // Case 3: Dragging grouped device onto ungrouped - add ungrouped to the group
+    if (activeGroup && !overInGroup) {
+      saveGroups(
+        groups.map((g) =>
+          g.id === activeGroup.id
+            ? { ...g, deviceIds: [...g.deviceIds, overId] }
+            : g
+        )
+      );
+      return;
+    }
+
+    // Case 4: Both in different groups - move active device to over's group
+    if (activeGroup && overGroup && activeGroup.id !== overGroup.id) {
+      // Remove from old group
+      const updatedGroups = groups.map((g) => {
+        if (g.id === activeGroup.id) {
+          return { ...g, deviceIds: g.deviceIds.filter((id) => id !== activeId) };
+        }
+        if (g.id === overGroup.id) {
+          return { ...g, deviceIds: [...g.deviceIds, activeId] };
+        }
+        return g;
+      });
+      // Remove empty groups (less than 2 devices)
+      saveGroups(updatedGroups.filter((g) => g.deviceIds.length >= 2));
+      return;
+    }
+
+    // Case 5: Reorder ungrouped devices
+    if (!activeInGroup && !overInGroup) {
+      const oldIndex = ungroupedDevices.findIndex((d) => d.device_id === activeId);
+      const newIndex = ungroupedDevices.findIndex((d) => d.device_id === overId);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newUngrouped = arrayMove(ungroupedDevices, oldIndex, newIndex);
+        saveOrder(newUngrouped.map((d) => d.device_id));
+      }
     }
   };
 
@@ -415,38 +474,30 @@ export function SwitchAccordion({ devices }: SwitchAccordionProps) {
             />
             {expandedGroups.has(group.id) && (
               <div className="ml-4 border-l-2 border-muted pl-4">
-                <Accordion type="multiple" className="space-y-2">
-                  {groupDevices.map((device) => (
-                    <div key={device.device_id} className="relative group/item">
-                      <AccordionItem
-                        value={`device-${device.device_id}`}
-                        className="border rounded-lg px-4"
-                      >
-                        <AccordionTrigger className="hover:no-underline">
-                          <div className="flex items-center gap-4">
-                            <Server className="h-5 w-5 text-muted-foreground" />
-                            <span className="font-semibold">{device.hostname}</span>
-                            <span className="text-sm text-muted-foreground">
-                              ({device.ports.length} ports)
-                            </span>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <PortGridTable ports={device.ports} />
-                        </AccordionContent>
-                      </AccordionItem>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute -right-2 top-2 h-6 w-6 opacity-0 group-hover/item:opacity-100 transition-opacity"
-                        onClick={() => removeFromGroup(group.id, device.device_id)}
-                        title="Remove from group"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </Accordion>
+                <SortableContext
+                  items={groupDevices.map((d) => d.device_id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <Accordion type="multiple" className="space-y-2">
+                    {groupDevices.map((device) => (
+                      <div key={device.device_id} className="relative group/item">
+                        <SortableDevice
+                          device={device}
+                          isOverTarget={overDeviceId === device.device_id}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute -right-2 top-2 h-6 w-6 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                          onClick={() => removeFromGroup(group.id, device.device_id)}
+                          title="Remove from group"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </Accordion>
+                </SortableContext>
               </div>
             )}
           </div>
