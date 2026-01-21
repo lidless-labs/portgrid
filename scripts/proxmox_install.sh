@@ -149,7 +149,7 @@ if [ -n "$DOWNLOADED" ]; then
     read -p "Use this template? [Y/n]: " USE_DOWNLOADED
     USE_DOWNLOADED=${USE_DOWNLOADED:-Y}
     if [[ "${USE_DOWNLOADED,,}" != "n" ]]; then
-        TEMPLATE="$TEMPLATE_STORAGE:vztmpl/$DOWNLOADED"
+        TEMPLATE="$DOWNLOADED"
     fi
 fi
 
