@@ -18,8 +18,14 @@ export interface DeviceWithPorts {
   ports: EnrichedPort[];
 }
 
+export interface SectionConfig {
+  name: string;
+  patterns: string[];  // Auto-assignment patterns
+}
+
 export interface PortsApiResponse {
   devices: DeviceWithPorts[];
+  sections: SectionConfig[];
 }
 
 export interface LibreNMSPort {

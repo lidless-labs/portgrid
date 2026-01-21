@@ -1,5 +1,23 @@
 import { NextResponse } from "next/server";
 import { createDataSourceAdapter } from "@/lib/adapters";
+import { parseFilterPatterns } from "@/lib/utils";
+import type { SectionConfig } from "@/types/port";
+
+function parseSectionConfig(): SectionConfig[] {
+  const sectionsEnv = process.env.DEVICE_SECTIONS;
+  if (!sectionsEnv || sectionsEnv.trim() === "") {
+    return [];
+  }
+
+  const sectionNames = sectionsEnv.split(",").map((s) => s.trim()).filter(Boolean);
+
+  return sectionNames.map((name) => {
+    // Convert section name to env var format: "My Section" -> "MY_SECTION"
+    const envKey = `SECTION_${name.toUpperCase().replace(/\s+/g, "_")}_PATTERNS`;
+    const patterns = parseFilterPatterns(process.env[envKey]);
+    return { name, patterns };
+  });
+}
 
 export async function GET() {
   try {
@@ -9,9 +27,10 @@ export async function GET() {
 
     const adapter = createDataSourceAdapter();
     const devices = await adapter.fetchDevicesWithPorts();
+    const sections = parseSectionConfig();
 
-    console.log(`Returning ${devices.length} devices`);
-    return NextResponse.json({ devices });
+    console.log(`Returning ${devices.length} devices, ${sections.length} sections`);
+    return NextResponse.json({ devices, sections });
   } catch (error) {
     console.error("Error fetching port data:", error);
     const message = error instanceof Error ? error.message : "Failed to fetch data";

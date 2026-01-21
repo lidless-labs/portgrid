@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { usePorts } from "@/hooks/use-ports";
-import { useDeviceOrder } from "@/hooks/use-device-order";
+import { useDeviceSections } from "@/hooks/use-device-sections";
 import { SwitchAccordion } from "@/components/switch-accordion";
 import { SearchInput } from "@/components/search-input";
 import { VlanFilter } from "@/components/vlan-filter";
@@ -13,7 +13,6 @@ import type { DeviceWithPorts, EnrichedPort } from "@/types/port";
 
 export default function Home() {
   const { data, isLoading, isError, error, refetch, isFetching } = usePorts();
-  const { deviceOrder, updateOrder } = useDeviceOrder();
   const [search, setSearch] = useState("");
   const [vlanFilter, setVlanFilter] = useState("all");
 
@@ -74,6 +73,15 @@ export default function Home() {
       })
       .filter((device) => device.ports.length > 0);
   }, [data, search, vlanFilter]);
+
+  // Use device sections hook
+  const {
+    devicesBySection,
+    orderedSections,
+    moveDeviceToSection,
+    reorderDevicesInSection,
+    hasSections,
+  } = useDeviceSections(filteredDevices, data?.sections || []);
 
   // Calculate totals
   const totals = useMemo(() => {
@@ -195,9 +203,11 @@ export default function Home() {
         {/* Device accordions */}
         {!isLoading && !isError && (
           <SwitchAccordion
-            devices={filteredDevices}
-            deviceOrder={deviceOrder}
-            onReorder={updateOrder}
+            devicesBySection={devicesBySection}
+            orderedSections={orderedSections}
+            onMoveDevice={moveDeviceToSection}
+            onReorderDevices={reorderDevicesInSection}
+            hasSections={hasSections}
           />
         )}
       </main>
