@@ -1,19 +1,41 @@
-# PortGrid
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80' viewBox='0 0 280 80'%3E%3Cdefs%3E%3ClinearGradient id='bar' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2322c55e'/%3E%3Cstop offset='50%25' stop-color='%23f59e0b'/%3E%3Cstop offset='100%25' stop-color='%23ef4444'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='280' height='4' rx='2' fill='url(%23bar)'/%3E%3Cg transform='translate(90, 16)'%3E%3Crect x='0' y='0' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='16' y='0' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='32' y='0' width='14' height='14' rx='2' fill='%23f59e0b'/%3E%3Crect x='0' y='16' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='16' y='16' width='14' height='14' rx='2' fill='%23ef4444'/%3E%3Crect x='32' y='16' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='0' y='32' width='14' height='14' rx='2' fill='%23f59e0b'/%3E%3Crect x='16' y='32' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='32' y='32' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3C/g%3E%3Ctext x='140' y='72' text-anchor='middle' font-family='system-ui, -apple-system, sans-serif' font-size='24' font-weight='bold' fill='%23ffffff'%3EPort%3Ctspan fill='%2322c55e'%3EGrid%3C/tspan%3E%3C/text%3E%3C/svg%3E">
+    <source media="(prefers-color-scheme: light)" srcset="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80' viewBox='0 0 280 80'%3E%3Cdefs%3E%3ClinearGradient id='bar' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2322c55e'/%3E%3Cstop offset='50%25' stop-color='%23f59e0b'/%3E%3Cstop offset='100%25' stop-color='%23ef4444'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='280' height='4' rx='2' fill='url(%23bar)'/%3E%3Cg transform='translate(90, 16)'%3E%3Crect x='0' y='0' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='16' y='0' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='32' y='0' width='14' height='14' rx='2' fill='%23f59e0b'/%3E%3Crect x='0' y='16' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='16' y='16' width='14' height='14' rx='2' fill='%23ef4444'/%3E%3Crect x='32' y='16' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='0' y='32' width='14' height='14' rx='2' fill='%23f59e0b'/%3E%3Crect x='16' y='32' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='32' y='32' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3C/g%3E%3Ctext x='140' y='72' text-anchor='middle' font-family='system-ui, -apple-system, sans-serif' font-size='24' font-weight='bold' fill='%23171717'%3EPort%3Ctspan fill='%2322c55e'%3EGrid%3C/tspan%3E%3C/text%3E%3C/svg%3E">
+    <img alt="PortGrid" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80' viewBox='0 0 280 80'%3E%3Cdefs%3E%3ClinearGradient id='bar' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2322c55e'/%3E%3Cstop offset='50%25' stop-color='%23f59e0b'/%3E%3Cstop offset='100%25' stop-color='%23ef4444'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='280' height='4' rx='2' fill='url(%23bar)'/%3E%3Cg transform='translate(90, 16)'%3E%3Crect x='0' y='0' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='16' y='0' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='32' y='0' width='14' height='14' rx='2' fill='%23f59e0b'/%3E%3Crect x='0' y='16' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='16' y='16' width='14' height='14' rx='2' fill='%23ef4444'/%3E%3Crect x='32' y='16' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='0' y='32' width='14' height='14' rx='2' fill='%23f59e0b'/%3E%3Crect x='16' y='32' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3Crect x='32' y='32' width='14' height='14' rx='2' fill='%2322c55e'/%3E%3C/g%3E%3Ctext x='140' y='72' text-anchor='middle' font-family='system-ui, -apple-system, sans-serif' font-size='24' font-weight='bold' fill='%23171717'%3EPort%3Ctspan fill='%2322c55e'%3EGrid%3C/tspan%3E%3C/text%3E%3C/svg%3E" width="280">
+  </picture>
+</p>
 
-A network switch port visualization tool for LibreNMS. View all your switch ports in a clean, searchable interface with real-time status updates.
+<p align="center">
+  <strong>Network port visualization dashboard for LibreNMS</strong><br>
+  <sub>View all your switch ports in a clean, searchable interface with real-time status updates</sub>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-15-black?logo=next.js" alt="Next.js 15">
+  <img src="https://img.shields.io/badge/React-19-61dafb?logo=react" alt="React 19">
+  <img src="https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
+</p>
+
+---
 
 ![PortGrid Screenshot](docs/screenshot.png)
 
 ## Features
 
-- **Real-time port status** - Color-coded indicators (green=up, red=down, gray=disabled)
-- **Grouped by switch** - Accordion layout organized by device
-- **Global search** - Search across all ports, descriptions, and MAC addresses
-- **VLAN filtering** - Filter ports by VLAN assignment
-- **LLDP/CDP neighbor info** - See connected device information
-- **Auto-refresh** - Updates every 60 seconds
-- **Dark/Light mode** - Toggle between themes
-- **Responsive design** - Works on desktop and mobile
+| Feature | Description |
+|---------|-------------|
+| 🟢 **Real-time status** | Color-coded indicators — green=up, amber=inactive, red=disabled |
+| 📁 **Grouped by switch** | Accordion layout organized by device with drag-to-combine grouping |
+| 🔍 **Global search** | Search across all ports, descriptions, and MAC addresses |
+| 🏷️ **VLAN filtering** | Filter ports by VLAN assignment |
+| 🔗 **LLDP/CDP neighbors** | See connected device information |
+| ♻️ **Auto-refresh** | Updates every 60 seconds |
+| 🌙 **Dark/Light mode** | Toggle between themes |
+| 📱 **Responsive** | Works on desktop and mobile |
+
+---
 
 ## Quick Start
 
@@ -25,66 +47,40 @@ A network switch port visualization tool for LibreNMS. View all your switch port
 
 ### Option 1: Proxmox LXC Container (Recommended)
 
-The easiest way to deploy PortGrid is using our Proxmox installer script. Run this **on your Proxmox host**:
+Run this **on your Proxmox host**:
 
 ```bash
-# Download and run the installer
 curl -fsSL https://raw.githubusercontent.com/solomonneas/portgrid/main/scripts/proxmox_install.sh -o proxmox_install.sh
 chmod +x proxmox_install.sh
 ./proxmox_install.sh
 ```
 
-The script will:
-1. Find the next available container ID
-2. Download an Ubuntu template (if needed)
-3. Create and configure an LXC container
-4. Install Node.js 20
-5. Clone and build PortGrid
-6. Configure a systemd service
-7. Prompt you for LibreNMS URL and API token
+The script will automatically:
+- Create an LXC container with Ubuntu
+- Install Node.js 20 and build PortGrid
+- Configure a systemd service
+- Prompt you for LibreNMS credentials
 
 ### Option 2: Manual Installation
 
-#### 1. Clone the repository
-
 ```bash
+# Clone and enter directory
 git clone https://github.com/solomonneas/portgrid.git
 cd portgrid
-```
 
-#### 2. Configure environment
-
-```bash
+# Configure environment
 cp .env.local.example .env.local
-```
+# Edit .env.local with your LibreNMS URL and API token
 
-Edit `.env.local` with your LibreNMS details:
-
-```env
-LIBRENMS_URL=https://your-librenms-instance.com
-LIBRENMS_API_TOKEN=your-api-token-here
-```
-
-#### 3. Install and build
-
-```bash
+# Install and build
 npm install
 npm run build
-```
 
-#### 4. Run
-
-```bash
-# Production
+# Run
 npm start
-
-# Development (with hot reload)
-npm run dev
 ```
 
-### Option 3: Linux Service Installation
-
-If you already have a Linux server with Node.js installed:
+### Option 3: Linux Service
 
 ```bash
 git clone https://github.com/solomonneas/portgrid.git
@@ -92,25 +88,32 @@ cd portgrid
 sudo ./scripts/install_portgrid.sh
 ```
 
-## Getting a LibreNMS API Token
+---
 
-1. Log in to your LibreNMS instance
-2. Go to **Settings** > **API** > **API Settings**
-3. Click **Create API access token**
-4. Give it a description (e.g., "PortGrid")
-5. Copy the generated token
+## Configuration
 
-## Configuration Options
+### Environment Variables
 
-| Environment Variable | Description | Default |
-|---------------------|-------------|---------|
-| `LIBRENMS_URL` | Your LibreNMS instance URL | Required |
-| `LIBRENMS_API_TOKEN` | LibreNMS API token | Required |
-| `PORT` | Port to run PortGrid on | 3000 |
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `LIBRENMS_URL` | Your LibreNMS instance URL | ✓ |
+| `LIBRENMS_API_TOKEN` | LibreNMS API token | ✓ |
+| `PORT` | Port to run PortGrid on | Default: 3000 |
+| `DEVICE_EXCLUDE` | Glob patterns to exclude devices | Optional |
+| `DEVICE_INCLUDE` | Glob patterns to include (whitelist mode) | Optional |
 
-## Management Commands
+### Getting a LibreNMS API Token
 
-### Proxmox Container
+1. Log in to LibreNMS → **Settings** → **API** → **API Settings**
+2. Click **Create API access token**
+3. Copy the generated token
+
+---
+
+## Management
+
+<details>
+<summary><strong>Proxmox Container Commands</strong></summary>
 
 ```bash
 # Enter container shell
@@ -126,39 +129,34 @@ pct exec <CTID> -- journalctl -u portgrid -f
 pct exec <CTID> -- systemctl restart portgrid
 ```
 
-### Systemd Service
+</details>
+
+<details>
+<summary><strong>Systemd Service Commands</strong></summary>
 
 ```bash
-# Check status
-systemctl status portgrid
-
-# View logs
-journalctl -u portgrid -f
-
-# Restart
-systemctl restart portgrid
-
-# Stop
-systemctl stop portgrid
+systemctl status portgrid    # Check status
+journalctl -u portgrid -f    # View logs
+systemctl restart portgrid   # Restart
+systemctl stop portgrid      # Stop
 ```
 
-## Updating PortGrid
+</details>
 
-### Proxmox Container
+<details>
+<summary><strong>Updating PortGrid</strong></summary>
 
 ```bash
+# Proxmox
 pct exec <CTID> -- bash -c "cd /opt/portgrid && git pull && npm install && npm run build && systemctl restart portgrid"
+
+# Manual
+cd /opt/portgrid && git pull && npm install && npm run build && systemctl restart portgrid
 ```
 
-### Manual Installation
+</details>
 
-```bash
-cd /opt/portgrid  # or your installation directory
-git pull
-npm install
-npm run build
-systemctl restart portgrid
-```
+---
 
 ## Architecture
 
@@ -166,64 +164,72 @@ systemctl restart portgrid
 portgrid/
 ├── app/
 │   ├── api/ports/route.ts    # LibreNMS API proxy
-│   └── page.tsx              # Main page
+│   └── page.tsx              # Main page with header/filters
 ├── components/
-│   ├── switch-accordion.tsx  # Device grouping
+│   ├── switch-accordion.tsx  # Device list with drag-and-drop
 │   ├── port-grid-table.tsx   # Port table with sorting
 │   └── columns.tsx           # Column definitions
 ├── hooks/
-│   └── use-ports.ts          # TanStack Query hook
-├── types/
-│   └── port.ts               # TypeScript interfaces
+│   ├── use-ports.ts          # TanStack Query for port data
+│   └── use-port-notes.ts     # localStorage for port notes
+├── lib/adapters/
+│   └── librenms.ts           # LibreNMS API adapter
 └── scripts/
     ├── proxmox_install.sh    # Proxmox LXC installer
     └── install_portgrid.sh   # Linux service installer
 ```
 
-## Tech Stack
-
-- **Framework**: Next.js 15 with App Router
-- **UI**: Tailwind CSS v4 + Shadcn/UI
-- **Data Fetching**: TanStack Query
-- **Tables**: TanStack Table
-- **Language**: TypeScript
+---
 
 ## Troubleshooting
 
-### "Failed to fetch ports"
+<details>
+<summary><strong>"Failed to fetch ports"</strong></summary>
 
 1. Verify your LibreNMS URL is correct and accessible
 2. Check your API token is valid
-3. Ensure your LibreNMS instance allows API access from the PortGrid server
+3. Ensure LibreNMS allows API access from the PortGrid server
 
-### Container won't start
+</details>
 
-```bash
-# Check container status
-pct status <CTID>
-
-# View container console
-pct console <CTID>
-```
-
-### Service won't start
+<details>
+<summary><strong>Container won't start</strong></summary>
 
 ```bash
-# Check for errors
-journalctl -u portgrid -n 50
-
-# Verify Node.js is installed
-node --version
-
-# Try running manually
-cd /opt/portgrid
-npm start
+pct status <CTID>      # Check container status
+pct console <CTID>     # View container console
 ```
+
+</details>
+
+<details>
+<summary><strong>Service won't start</strong></summary>
+
+```bash
+journalctl -u portgrid -n 50    # Check for errors
+node --version                   # Verify Node.js
+cd /opt/portgrid && npm start   # Try running manually
+```
+
+</details>
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 15 with App Router
+- **UI:** Tailwind CSS v4 + Shadcn/UI
+- **Data:** TanStack Query + TanStack Table
+- **Language:** TypeScript
+
+---
 
 ## License
 
 MIT
 
-## Credits
+---
 
-Inspired by [SwitchMap-NG](https://github.com/pnnl/switchmap-ng) for LibreNMS.
+<p align="center">
+  Inspired by <a href="https://sourceforge.net/projects/switchmap/">SwitchMap</a>
+</p>
