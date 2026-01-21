@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { usePorts } from "@/hooks/use-ports";
+import { useDeviceOrder } from "@/hooks/use-device-order";
 import { SwitchAccordion } from "@/components/switch-accordion";
 import { SearchInput } from "@/components/search-input";
 import { VlanFilter } from "@/components/vlan-filter";
@@ -12,6 +13,7 @@ import type { DeviceWithPorts, EnrichedPort } from "@/types/port";
 
 export default function Home() {
   const { data, isLoading, isError, error, refetch, isFetching } = usePorts();
+  const { deviceOrder, updateOrder } = useDeviceOrder();
   const [search, setSearch] = useState("");
   const [vlanFilter, setVlanFilter] = useState("all");
 
@@ -192,7 +194,11 @@ export default function Home() {
 
         {/* Device accordions */}
         {!isLoading && !isError && (
-          <SwitchAccordion devices={filteredDevices} />
+          <SwitchAccordion
+            devices={filteredDevices}
+            deviceOrder={deviceOrder}
+            onReorder={updateOrder}
+          />
         )}
       </main>
 
