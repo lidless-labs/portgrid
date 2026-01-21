@@ -7,7 +7,7 @@ import { SearchInput } from "@/components/search-input";
 import { VlanFilter } from "@/components/vlan-filter";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Grid3X3 } from "lucide-react";
+import { RefreshCw, Grid3X3, Github } from "lucide-react";
 import type { DeviceWithPorts, EnrichedPort } from "@/types/port";
 
 export default function Home() {
@@ -188,6 +188,21 @@ export default function Home() {
           <SwitchAccordion devices={filteredDevices} />
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="border-t py-6">
+        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Github className="h-4 w-4" />
+          <a
+            href="https://github.com/solomonneas"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-foreground transition-colors"
+          >
+            solomonneas
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }
