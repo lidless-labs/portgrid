@@ -31,7 +31,7 @@ export function createColumns({ getNote, setNote }: ColumnsConfig): ColumnDef<En
       },
     },
     {
-      id: "notes",
+      accessorKey: "port_id",
       header: "Notes",
       cell: ({ row }) => (
         <NoteCell
