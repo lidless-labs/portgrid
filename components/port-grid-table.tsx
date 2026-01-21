@@ -7,8 +7,9 @@ import {
   getPaginationRowModel,
   useReactTable,
   type SortingState,
+  type ColumnDef,
 } from "@tanstack/react-table";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -18,7 +19,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { createColumns } from "@/components/columns";
+import { Badge } from "@/components/ui/badge";
+import { NoteCell } from "@/components/note-cell";
 import { usePortNotes } from "@/hooks/use-port-notes";
 import type { EnrichedPort } from "@/types/port";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -47,10 +49,99 @@ export function PortGridTable({ ports }: PortGridTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const { getNote, setNote } = usePortNotes();
 
-  const columns = useMemo(
-    () => createColumns({ getNote, setNote }),
-    [getNote, setNote]
-  );
+  const columns: ColumnDef<EnrichedPort>[] = [
+    {
+      accessorKey: "ifName",
+      header: "Port",
+      cell: ({ row }) => (
+        <span className="font-mono text-sm">{row.getValue("ifName")}</span>
+      ),
+    },
+    {
+      accessorKey: "ifAlias",
+      header: "Description",
+      cell: ({ row }) => {
+        const desc = row.getValue("ifAlias") as string | null;
+        if (!desc || desc.trim() === "") {
+          return <span className="text-red-500 italic">No description</span>;
+        }
+        return <span className="truncate max-w-[200px] block">{desc}</span>;
+      },
+    },
+    {
+      id: "notes",
+      header: "Notes",
+      cell: ({ row }) => (
+        <NoteCell
+          portId={row.original.port_id}
+          note={getNote(row.original.port_id)}
+          onNoteChange={(note) => setNote(row.original.port_id, note)}
+        />
+      ),
+    },
+    {
+      accessorKey: "ifAdminStatus",
+      header: "Admin",
+      cell: ({ row }) => {
+        const status = row.getValue("ifAdminStatus") as string;
+        return (
+          <Badge
+            variant={status === "up" ? "default" : "destructive"}
+            className={status === "up" ? "bg-green-600" : ""}
+          >
+            {status}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "ifOperStatus",
+      header: "Oper",
+      cell: ({ row }) => {
+        const status = row.getValue("ifOperStatus") as string;
+        const adminStatus = row.original.ifAdminStatus;
+        if (adminStatus === "down") {
+          return <Badge variant="secondary">{status}</Badge>;
+        }
+        return (
+          <Badge
+            variant="default"
+            className={status === "up" ? "bg-green-600" : "bg-amber-500"}
+          >
+            {status}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "ifVlan",
+      header: "VLAN",
+      cell: ({ row }) => {
+        const vlan = row.getValue("ifVlan") as number | null;
+        return <span className="font-mono">{vlan ?? "-"}</span>;
+      },
+    },
+    {
+      accessorKey: "ifPhysAddress",
+      header: "MAC",
+      cell: ({ row }) => {
+        const mac = row.getValue("ifPhysAddress") as string | null;
+        return <span className="font-mono text-xs">{mac ?? "-"}</span>;
+      },
+    },
+    {
+      accessorKey: "neighbor",
+      header: "Neighbor",
+      cell: ({ row }) => {
+        const neighbor = row.getValue("neighbor") as string | null;
+        return neighbor ? (
+          <span className="text-blue-600 dark:text-blue-400">{neighbor}</span>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        );
+      },
+    },
+  ];
 
   const table = useReactTable({
     data: ports,
