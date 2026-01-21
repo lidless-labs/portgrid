@@ -20,8 +20,6 @@
 
 ---
 
-![PortGrid Screenshot](docs/screenshot.png)
-
 ## Features
 
 | Feature | Description |
