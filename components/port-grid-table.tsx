@@ -8,7 +8,7 @@ import {
   useReactTable,
   type SortingState,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -18,7 +18,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { columns } from "@/components/columns";
+import { createColumns } from "@/components/columns";
+import { usePortNotes } from "@/hooks/use-port-notes";
 import type { EnrichedPort } from "@/types/port";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -44,6 +45,12 @@ function getRowClassName(port: EnrichedPort): string {
 
 export function PortGridTable({ ports }: PortGridTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const { getNote, setNote } = usePortNotes();
+
+  const columns = useMemo(
+    () => createColumns({ getNote, setNote }),
+    [getNote, setNote]
+  );
 
   const table = useReactTable({
     data: ports,
