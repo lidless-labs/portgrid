@@ -43,3 +43,32 @@ export interface LibreNMSLink {
   local_port_id: number;
   remote_hostname: string;
 }
+
+// NetDisco types
+export interface NetDiscoDevice {
+  ip: string;
+  dns: string | null;
+  name: string | null;
+}
+
+export interface NetDiscoPort {
+  port: string;
+  name: string | null;
+  up: string;
+  up_admin: string;
+  vlan: number | null;
+  mac: string | null;
+}
+
+export interface NetDiscoNeighbor {
+  remote_ip: string;
+  remote_port: string;
+  remote_device: string | null;
+}
+
+// Data source adapter interface
+export interface DataSourceAdapter {
+  fetchDevicesWithPorts(): Promise<DeviceWithPorts[]>;
+}
+
+export type DataSourceType = "librenms" | "netdisco";
