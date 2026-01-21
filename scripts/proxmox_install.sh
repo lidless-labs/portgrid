@@ -81,15 +81,44 @@ CT_CORES=${CT_CORES:-2}
 # Network configuration
 echo ""
 echo -e "${YELLOW}Network Configuration${NC}"
+
+# List available bridges
+echo "Available network bridges:"
+ip -o link show type bridge | awk -F': ' '{print "  " $2}' 2>/dev/null || \
+    ls /sys/class/net/ | xargs -I{} sh -c 'test -d /sys/class/net/{}/bridge && echo "  {}"' 2>/dev/null || \
+    echo "  vmbr0"
+echo ""
+
+read -p "Network bridge [vmbr0]: " CT_BRIDGE
+CT_BRIDGE=${CT_BRIDGE:-vmbr0}
+
+read -p "VLAN tag (leave empty for none): " CT_VLAN
+
+read -p "Enable firewall? [y/N]: " CT_FIREWALL
+CT_FIREWALL=${CT_FIREWALL:-N}
+
 read -p "Use DHCP? [Y/n]: " USE_DHCP
 USE_DHCP=${USE_DHCP:-Y}
+
+# Build network config string
+NET_CONFIG="name=eth0,bridge=$CT_BRIDGE"
 
 if [[ "${USE_DHCP,,}" == "n" ]]; then
     read -p "IP Address (CIDR format, e.g., 192.168.1.100/24): " CT_IP
     read -p "Gateway: " CT_GW
-    NET_CONFIG="name=eth0,bridge=vmbr0,ip=$CT_IP,gw=$CT_GW"
+    NET_CONFIG="$NET_CONFIG,ip=$CT_IP,gw=$CT_GW"
 else
-    NET_CONFIG="name=eth0,bridge=vmbr0,ip=dhcp"
+    NET_CONFIG="$NET_CONFIG,ip=dhcp"
+fi
+
+# Add VLAN tag if specified
+if [ -n "$CT_VLAN" ]; then
+    NET_CONFIG="$NET_CONFIG,tag=$CT_VLAN"
+fi
+
+# Add firewall if enabled
+if [[ "${CT_FIREWALL,,}" == "y" ]]; then
+    NET_CONFIG="$NET_CONFIG,firewall=1"
 fi
 
 # Storage selection
@@ -214,6 +243,13 @@ echo -e "  Hostname: ${CYAN}$CT_HOSTNAME${NC}"
 echo -e "  Memory: ${CYAN}${CT_MEMORY}MB${NC}"
 echo -e "  Disk: ${CYAN}${CT_DISK}GB${NC}"
 echo -e "  Cores: ${CYAN}$CT_CORES${NC}"
+echo -e "  Bridge: ${CYAN}$CT_BRIDGE${NC}"
+if [ -n "$CT_VLAN" ]; then
+    echo -e "  VLAN: ${CYAN}$CT_VLAN${NC}"
+fi
+if [[ "${CT_FIREWALL,,}" == "y" ]]; then
+    echo -e "  Firewall: ${CYAN}Enabled${NC}"
+fi
 echo -e "  Template: ${CYAN}$TEMPLATE${NC}"
 echo ""
 
