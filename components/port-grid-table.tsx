@@ -27,17 +27,17 @@ interface PortGridTableProps {
 }
 
 function getRowClassName(port: EnrichedPort): string {
-  // Disabled port (admin down)
+  // Administratively disabled (intentionally shut down)
   if (port.ifAdminStatus === "down") {
-    return "bg-gray-100 dark:bg-gray-800 text-muted-foreground";
+    return "bg-red-50 dark:bg-red-950 text-muted-foreground";
   }
-  // Active port (oper up)
+  // Active port (admin up, oper up)
   if (port.ifOperStatus === "up") {
     return "bg-green-50 dark:bg-green-950";
   }
-  // Problem port (admin up but oper down)
+  // Inactive port (admin up but oper down - no link/cable)
   if (port.ifOperStatus === "down") {
-    return "bg-red-50 dark:bg-red-950";
+    return "bg-amber-50 dark:bg-amber-950";
   }
   return "";
 }

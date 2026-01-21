@@ -29,7 +29,10 @@ export const columns: ColumnDef<EnrichedPort>[] = [
     cell: ({ row }) => {
       const status = row.getValue("ifAdminStatus") as string;
       return (
-        <Badge variant={status === "up" ? "default" : "secondary"}>
+        <Badge
+          variant={status === "up" ? "default" : "destructive"}
+          className={status === "up" ? "bg-green-600" : ""}
+        >
           {status}
         </Badge>
       );
@@ -40,10 +43,19 @@ export const columns: ColumnDef<EnrichedPort>[] = [
     header: "Oper",
     cell: ({ row }) => {
       const status = row.getValue("ifOperStatus") as string;
+      const adminStatus = row.original.ifAdminStatus;
+      // If admin is down, oper status is irrelevant - show gray
+      if (adminStatus === "down") {
+        return (
+          <Badge variant="secondary">
+            {status}
+          </Badge>
+        );
+      }
       return (
         <Badge
-          variant={status === "up" ? "default" : "destructive"}
-          className={status === "up" ? "bg-green-600" : ""}
+          variant="default"
+          className={status === "up" ? "bg-green-600" : "bg-amber-500"}
         >
           {status}
         </Badge>

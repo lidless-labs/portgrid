@@ -75,21 +75,23 @@ export default function Home() {
 
   // Calculate totals
   const totals = useMemo(() => {
-    if (!filteredDevices.length) return { devices: 0, ports: 0, up: 0, down: 0 };
+    if (!filteredDevices.length) return { devices: 0, ports: 0, up: 0, inactive: 0, disabled: 0 };
 
     let ports = 0;
     let up = 0;
-    let down = 0;
+    let inactive = 0;
+    let disabled = 0;
 
     filteredDevices.forEach((device) => {
       ports += device.ports.length;
       device.ports.forEach((port) => {
         if (port.ifAdminStatus === "up" && port.ifOperStatus === "up") up++;
-        if (port.ifAdminStatus === "up" && port.ifOperStatus === "down") down++;
+        if (port.ifAdminStatus === "up" && port.ifOperStatus === "down") inactive++;
+        if (port.ifAdminStatus === "down") disabled++;
       });
     });
 
-    return { devices: filteredDevices.length, ports, up, down };
+    return { devices: filteredDevices.length, ports, up, inactive, disabled };
   }, [filteredDevices]);
 
   return (
@@ -146,9 +148,14 @@ export default function Home() {
             <span>
               <strong className="text-green-600">{totals.up}</strong> up
             </span>
-            {totals.down > 0 && (
+            {totals.inactive > 0 && (
               <span>
-                <strong className="text-red-600">{totals.down}</strong> down
+                <strong className="text-amber-500">{totals.inactive}</strong> inactive
+              </span>
+            )}
+            {totals.disabled > 0 && (
+              <span>
+                <strong className="text-red-600">{totals.disabled}</strong> disabled
               </span>
             )}
           </div>

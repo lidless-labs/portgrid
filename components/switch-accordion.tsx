@@ -52,10 +52,12 @@ export function SwitchAccordion({ devices }: SwitchAccordionProps) {
                     {upPorts} up
                   </Badge>
                   {downPorts > 0 && (
-                    <Badge variant="destructive">{downPorts} down</Badge>
+                    <Badge variant="default" className="bg-amber-500">
+                      {downPorts} inactive
+                    </Badge>
                   )}
                   {disabledPorts > 0 && (
-                    <Badge variant="secondary">{disabledPorts} disabled</Badge>
+                    <Badge variant="destructive">{disabledPorts} disabled</Badge>
                   )}
                 </div>
                 <span className="text-sm text-muted-foreground">
