@@ -24,15 +24,25 @@ export async function GET() {
   };
 
   try {
+    console.log("Fetching from LibreNMS:", baseUrl);
+
     const [portsRes, devicesRes, linksRes] = await Promise.all([
       fetch(`${baseUrl}/api/v0/ports`, { headers, cache: "no-store" }),
       fetch(`${baseUrl}/api/v0/devices`, { headers, cache: "no-store" }),
       fetch(`${baseUrl}/api/v0/links`, { headers, cache: "no-store" }),
     ]);
 
+    console.log("Response status - ports:", portsRes.status, "devices:", devicesRes.status, "links:", linksRes.status);
+
     if (!portsRes.ok || !devicesRes.ok || !linksRes.ok) {
+      const errors = {
+        ports: portsRes.ok ? "ok" : await portsRes.text().catch(() => portsRes.status),
+        devices: devicesRes.ok ? "ok" : await devicesRes.text().catch(() => devicesRes.status),
+        links: linksRes.ok ? "ok" : await linksRes.text().catch(() => linksRes.status),
+      };
+      console.error("LibreNMS API errors:", errors);
       return NextResponse.json(
-        { error: "Failed to fetch data from LibreNMS" },
+        { error: "Failed to fetch data from LibreNMS", details: errors },
         { status: 502 }
       );
     }
