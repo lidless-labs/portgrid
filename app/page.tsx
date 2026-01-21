@@ -7,7 +7,7 @@ import { SearchInput } from "@/components/search-input";
 import { VlanFilter } from "@/components/vlan-filter";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Grid3X3, Github } from "lucide-react";
+import { RefreshCw, Github } from "lucide-react";
 import type { DeviceWithPorts, EnrichedPort } from "@/types/port";
 
 export default function Home() {
@@ -98,11 +98,31 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        {/* Color accent bar */}
+        <div className="h-1 w-full bg-gradient-to-r from-green-500 via-amber-500 to-red-500" />
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Grid3X3 className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold">PortGrid</h1>
+              {/* Custom logo with port status colors */}
+              <div className="relative h-10 w-10">
+                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-0.5 p-1">
+                  <div className="rounded-sm bg-green-500" />
+                  <div className="rounded-sm bg-green-500" />
+                  <div className="rounded-sm bg-amber-500" />
+                  <div className="rounded-sm bg-green-500" />
+                  <div className="rounded-sm bg-red-500" />
+                  <div className="rounded-sm bg-green-500" />
+                  <div className="rounded-sm bg-amber-500" />
+                  <div className="rounded-sm bg-green-500" />
+                  <div className="rounded-sm bg-green-500" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight">
+                  Port<span className="text-green-500">Grid</span>
+                </h1>
+                <p className="text-xs text-muted-foreground">Network Port Visualization</p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Button
