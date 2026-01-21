@@ -46,3 +46,12 @@ next-env.d.ts
 .aider*
 .continue/
 CLAUDE.md
+GEMINI.md
+.gemini/
+CODEX.md
+.codex/
+COPILOT.md
+.copilot/
+plan.md
+*.plan.md
+blueprint.md

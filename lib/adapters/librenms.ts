@@ -6,10 +6,13 @@ import type {
   LibreNMSLink,
   LibreNMSPort,
 } from "@/types/port";
+import { matchesAnyPattern, parseFilterPatterns } from "@/lib/utils";
 
 export class LibreNMSAdapter implements DataSourceAdapter {
   private baseUrl: string;
   private apiToken: string;
+  private excludePatterns: string[];
+  private includePatterns: string[];
 
   constructor() {
     const baseUrl = process.env.LIBRENMS_URL;
@@ -21,6 +24,38 @@ export class LibreNMSAdapter implements DataSourceAdapter {
 
     this.baseUrl = baseUrl;
     this.apiToken = apiToken;
+    this.excludePatterns = parseFilterPatterns(process.env.DEVICE_EXCLUDE);
+    this.includePatterns = parseFilterPatterns(process.env.DEVICE_INCLUDE);
+
+    if (this.excludePatterns.length > 0) {
+      console.log("Device exclude patterns:", this.excludePatterns);
+    }
+    if (this.includePatterns.length > 0) {
+      console.log("Device include patterns:", this.includePatterns);
+    }
+  }
+
+  private shouldIncludeDevice(device: LibreNMSDevice): boolean {
+    const hostname = device.hostname;
+    const ip = device.ip;
+
+    // If include patterns are set, device must match at least one
+    if (this.includePatterns.length > 0) {
+      const matchesInclude =
+        matchesAnyPattern(hostname, this.includePatterns) ||
+        matchesAnyPattern(ip, this.includePatterns);
+      if (!matchesInclude) return false;
+    }
+
+    // If exclude patterns are set, device must NOT match any
+    if (this.excludePatterns.length > 0) {
+      const matchesExclude =
+        matchesAnyPattern(hostname, this.excludePatterns) ||
+        matchesAnyPattern(ip, this.excludePatterns);
+      if (matchesExclude) return false;
+    }
+
+    return true;
   }
 
   async fetchDevicesWithPorts(): Promise<DeviceWithPorts[]> {
@@ -32,9 +67,12 @@ export class LibreNMSAdapter implements DataSourceAdapter {
     console.log("Fetching from LibreNMS:", this.baseUrl);
 
     // Fetch ports and devices (required)
+    // LibreNMS requires explicit columns parameter to include device_id and other fields
+    const portColumns = "port_id,device_id,ifName,ifAlias,ifDescr,ifAdminStatus,ifOperStatus,ifVlan,ifPhysAddress";
+    const deviceColumns = "device_id,hostname,ip";
     const [portsRes, devicesRes] = await Promise.all([
-      fetch(`${this.baseUrl}/api/v0/ports`, { headers, cache: "no-store" }),
-      fetch(`${this.baseUrl}/api/v0/devices`, { headers, cache: "no-store" }),
+      fetch(`${this.baseUrl}/api/v0/ports?columns=${portColumns}`, { headers, cache: "no-store" }),
+      fetch(`${this.baseUrl}/api/v0/devices?columns=${deviceColumns}`, { headers, cache: "no-store" }),
     ]);
 
     console.log("Response status - ports:", portsRes.status, "devices:", devicesRes.status);
@@ -66,31 +104,40 @@ export class LibreNMSAdapter implements DataSourceAdapter {
     }
 
     const ports: LibreNMSPort[] = portsData.ports || [];
-    const devices: LibreNMSDevice[] = devicesData.devices || [];
+    const allDevices: LibreNMSDevice[] = devicesData.devices || [];
 
-    // Build lookup maps
+    // Apply device filtering
+    const devices = allDevices.filter((d) => this.shouldIncludeDevice(d));
+    console.log(`Devices: ${allDevices.length} total, ${devices.length} after filtering`);
+
+    // Build lookup maps (only for included devices)
     const deviceMap = new Map<number, string>(
       devices.map((d) => [d.device_id, d.hostname])
     );
+    const includedDeviceIds = new Set(devices.map((d) => d.device_id));
     const linkMap = new Map<number, string>(
       links.map((l) => [l.local_port_id, l.remote_hostname])
     );
 
-    // Group ports by device
+    // Group ports by device (only for included devices)
     const devicePorts = new Map<number, EnrichedPort[]>();
 
     for (const port of ports) {
+      // Skip ports from filtered-out devices
+      if (!includedDeviceIds.has(port.device_id)) continue;
+
+      // Defensive null checks - LibreNMS API can return unexpected nulls
       const enriched: EnrichedPort = {
-        port_id: port.port_id,
-        device_id: port.device_id,
+        port_id: port.port_id ?? 0,
+        device_id: port.device_id ?? 0,
         deviceName: deviceMap.get(port.device_id) || `Device ${port.device_id}`,
-        ifName: port.ifName,
-        ifAlias: port.ifAlias,
-        ifDescr: port.ifDescr,
+        ifName: port.ifName ?? `port-${port.port_id}`,
+        ifAlias: port.ifAlias ?? null,
+        ifDescr: port.ifDescr ?? "",
         ifAdminStatus: port.ifAdminStatus === "up" ? "up" : "down",
         ifOperStatus: port.ifOperStatus === "up" ? "up" : "down",
-        ifVlan: port.ifVlan,
-        ifPhysAddress: port.ifPhysAddress,
+        ifVlan: port.ifVlan ?? null,
+        ifPhysAddress: port.ifPhysAddress ?? null,
         neighbor: linkMap.get(port.port_id) || null,
       };
 

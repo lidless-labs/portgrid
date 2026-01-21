@@ -37,6 +37,7 @@ export interface LibreNMSPort {
 export interface LibreNMSDevice {
   device_id: number;
   hostname: string;
+  ip: string | null;
 }
 
 export interface LibreNMSLink {
