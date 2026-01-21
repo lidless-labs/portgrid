@@ -156,7 +156,6 @@ fi
 if [ -z "$TEMPLATE" ]; then
     # Download a template
     echo ""
-    echo -e "${YELLOW}Downloading Ubuntu 24.04 template...${NC}"
     TEMPLATE_NAME=$(pveam available | grep -i "ubuntu-24.04-standard" | awk '{print $2}' | head -1)
     if [ -z "$TEMPLATE_NAME" ]; then
         TEMPLATE_NAME=$(pveam available | grep -i "ubuntu-22.04-standard" | awk '{print $2}' | head -1)
@@ -167,8 +166,40 @@ if [ -z "$TEMPLATE" ]; then
         exit 1
     fi
 
-    echo "Downloading $TEMPLATE_NAME..."
-    pveam download $TEMPLATE_STORAGE $TEMPLATE_NAME
+    TEMPLATE_URL="http://download.proxmox.com/images/system/$TEMPLATE_NAME"
+    TEMPLATE_PATH="/var/lib/vz/template/cache/$TEMPLATE_NAME"
+
+    # Get file size for progress display
+    TOTAL_SIZE=$(curl -sI "$TEMPLATE_URL" | grep -i content-length | awk '{print $2}' | tr -d '\r')
+    TOTAL_SIZE_MB=$((TOTAL_SIZE / 1024 / 1024))
+
+    echo -e "${YELLOW}Downloading Ubuntu template...${NC}"
+    echo -e "  File: ${CYAN}$TEMPLATE_NAME${NC}"
+    echo -e "  Size: ${CYAN}${TOTAL_SIZE_MB} MB${NC}"
+    echo ""
+
+    # Download with wget showing a nice progress bar
+    wget --progress=bar:force:noscroll -O "$TEMPLATE_PATH" "$TEMPLATE_URL" 2>&1 | \
+        while IFS= read -r line; do
+            # Parse wget progress and display custom bar
+            if [[ "$line" =~ ([0-9]+)% ]]; then
+                pct="${BASH_REMATCH[1]}"
+                filled=$((pct / 2))
+                empty=$((50 - filled))
+                bar=$(printf '%*s' "$filled" '' | tr ' ' '█')
+                bar_empty=$(printf '%*s' "$empty" '' | tr ' ' '░')
+                printf "\r  [${GREEN}${bar}${NC}${bar_empty}] ${CYAN}%3d%%${NC}" "$pct"
+            fi
+        done
+    echo ""
+
+    # Verify download succeeded
+    if [ ! -f "$TEMPLATE_PATH" ] || [ ! -s "$TEMPLATE_PATH" ]; then
+        echo -e "${RED}Error: Template download failed.${NC}"
+        exit 1
+    fi
+
+    echo -e "${GREEN}Download complete!${NC}"
     TEMPLATE="$TEMPLATE_STORAGE:vztmpl/$TEMPLATE_NAME"
 fi
 
