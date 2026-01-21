@@ -53,6 +53,9 @@ NEXT_CTID=$(pvesh get /cluster/nextid 2>/dev/null || echo "100")
 echo -e "${GREEN}Next available CT ID: $NEXT_CTID${NC}"
 
 # Prompt for CT ID
+echo ""
+echo -e "${CYAN}Press Enter to accept default values shown in brackets.${NC}"
+echo ""
 read -p "Container ID [$NEXT_CTID]: " CTID
 CTID=${CTID:-$NEXT_CTID}
 
