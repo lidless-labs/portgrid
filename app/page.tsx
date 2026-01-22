@@ -221,12 +221,12 @@ export default function Home() {
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Github className="h-4 w-4" />
           <a
-            href="https://github.com/solomonneas"
+            href="https://github.com/solomonneas/portgrid"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-foreground transition-colors"
           >
-            solomonneas
+            solomonneas/portgrid
           </a>
         </div>
       </footer>
