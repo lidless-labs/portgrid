@@ -31,9 +31,11 @@ export class ErrorBoundary extends Component<Props, State> {
             </h1>
             <div className="bg-white dark:bg-gray-900 rounded p-4 overflow-auto">
               <p className="font-mono text-sm text-red-600 dark:text-red-400 whitespace-pre-wrap">
-                {this.state.error?.message || "Unknown error"}
+                {process.env.NODE_ENV === "development"
+                  ? this.state.error?.message || "Unknown error"
+                  : "An unexpected error occurred. Please try reloading the page."}
               </p>
-              {this.state.error?.stack && (
+              {process.env.NODE_ENV === "development" && this.state.error?.stack && (
                 <pre className="mt-4 text-xs text-gray-600 dark:text-gray-400 overflow-auto max-h-64">
                   {this.state.error.stack}
                 </pre>

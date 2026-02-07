@@ -1,4 +1,5 @@
-# Personal AI context - DO NOT COMMIT
+# AI/Automation Files - DO NOT COMMIT
+CLAUDE.md
 BOOTSTRAP.md
 SOUL.md
 IDENTITY.md
@@ -8,33 +9,13 @@ HEARTBEAT.md
 TOOLS.md
 SAFETY_RULES.md
 MEMORY.md
-memory/
+
+# Claude Code project files
+.claude/
 
 # OpenClaw files
 .openclaw/
 *.sqlite
-
-# AI Planning/Context (other providers)
-GEMINI.md
-.gemini/
-CODEX.md
-.codex/
-COPILOT.md
-.copilot/
-KIMI.md
-.kimi/
-.cursorrules
-.cursor/
-.continuerules
-.continue/
-.aider*
-.roo/
-.pi/
-plan.md
-*.plan.md
-blueprint.md
-.agents/
-.soul/
 
 # Environment files
 .env
@@ -64,16 +45,5 @@ Thumbs.db
 *.swo
 *~
 
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-build/
-
-# Next.js
-/.next/
-/out/
-.vercel
-*.tsbuildinfo
-next-env.d.ts
+FRONTEND_DESIGN.md
+POLISH_NOTES.md

@@ -1,0 +1,31 @@
+[Unit]
+Description=PortGrid - Network Port Visualization Dashboard
+After=network.target
+
+[Service]
+Type=simple
+User=portgrid
+Group=portgrid
+WorkingDirectory=/opt/portgrid
+ExecStart=/usr/bin/node /opt/portgrid/.next/standalone/server.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+Environment=PORT=3000
+EnvironmentFile=-/opt/portgrid/.env.local
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+ReadWritePaths=/opt/portgrid/data
+
+[Install]
+WantedBy=multi-user.target

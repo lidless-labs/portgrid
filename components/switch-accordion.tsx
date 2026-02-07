@@ -335,15 +335,25 @@ export function SwitchAccordion({ devices }: SwitchAccordionProps) {
     const activeGroup = findDeviceGroup(activeId);
     const overGroup = findDeviceGroup(overId);
 
-    // Case 1: Both ungrouped - create new group
+    // Case 1: Both ungrouped - reorder or create new group
     if (!activeInGroup && !overInGroup) {
-      const newGroup: DeviceGroup = {
-        id: `group-${Date.now()}`,
-        name: "New Group",
-        deviceIds: [overId, activeId],
-      };
-      saveGroups([...groups, newGroup]);
-      setExpandedGroups((prev) => new Set([...prev, newGroup.id]));
+      const oldIndex = ungroupedDevices.findIndex((d) => d.device_id === activeId);
+      const newIndex = ungroupedDevices.findIndex((d) => d.device_id === overId);
+
+      if (oldIndex !== -1 && newIndex !== -1 && Math.abs(oldIndex - newIndex) === 1) {
+        // Adjacent items: reorder within the ungrouped list
+        const newUngrouped = arrayMove(ungroupedDevices, oldIndex, newIndex);
+        saveOrder(newUngrouped.map((d) => d.device_id));
+      } else {
+        // Non-adjacent items: create a new group
+        const newGroup: DeviceGroup = {
+          id: `group-${Date.now()}`,
+          name: "New Group",
+          deviceIds: [overId, activeId],
+        };
+        saveGroups([...groups, newGroup]);
+        setExpandedGroups((prev) => new Set([...prev, newGroup.id]));
+      }
       return;
     }
 
@@ -388,14 +398,19 @@ export function SwitchAccordion({ devices }: SwitchAccordionProps) {
       return;
     }
 
-    // Case 5: Reorder ungrouped devices
-    if (!activeInGroup && !overInGroup) {
-      const oldIndex = ungroupedDevices.findIndex((d) => d.device_id === activeId);
-      const newIndex = ungroupedDevices.findIndex((d) => d.device_id === overId);
+    // Case 5: Reorder within the same group
+    if (activeGroup && overGroup && activeGroup.id === overGroup.id) {
+      const groupDeviceIds = activeGroup.deviceIds;
+      const oldIndex = groupDeviceIds.indexOf(activeId);
+      const newIndex = groupDeviceIds.indexOf(overId);
 
       if (oldIndex !== -1 && newIndex !== -1) {
-        const newUngrouped = arrayMove(ungroupedDevices, oldIndex, newIndex);
-        saveOrder(newUngrouped.map((d) => d.device_id));
+        const reordered = arrayMove(groupDeviceIds, oldIndex, newIndex);
+        saveGroups(
+          groups.map((g) =>
+            g.id === activeGroup.id ? { ...g, deviceIds: reordered } : g
+          )
+        );
       }
     }
   };
