@@ -47,3 +47,5 @@ Thumbs.db
 
 FRONTEND_DESIGN.md
 POLISH_NOTES.md
+node_modules/
+.next/
