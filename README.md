@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License" />
 </p>
 
-# 🌐 PortGrid
+# 🌐 Solomon's PortGrid
 
 **High-density switch port visualizer for LibreNMS with real-time status and VLAN mapping.**
 
