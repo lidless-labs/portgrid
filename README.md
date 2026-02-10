@@ -1,101 +1,70 @@
 <p align="center">
-  <img src="docs/logo.svg" alt="PortGrid" width="280">
+  <img src="https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js" alt="Next.js 15" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white" alt="React 19" />
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/LibreNMS-API-00A86B?style=flat-square" alt="LibreNMS" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License" />
 </p>
 
-<p align="center">
-  <strong>Network port visualization dashboard for LibreNMS</strong><br>
-  <sub>View all your switch ports in a clean, searchable interface with real-time status updates</sub>
-</p>
+# 🌐 PortGrid
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Next.js-15-black?logo=next.js" alt="Next.js 15">
-  <img src="https://img.shields.io/badge/React-19-61dafb?logo=react" alt="React 19">
-  <img src="https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white" alt="TypeScript">
-  <img src="https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
-</p>
+**High-density switch port visualizer for LibreNMS with real-time status and VLAN mapping.**
+
+PortGrid is a network dashboard that transforms dense port tables into a scannable, color-coded grid view. See all your switch ports at a glance, search by description or MAC address, and track VLAN assignments in real-time.
+
+![PortGrid](docs/screenshots/dashboard.png)
 
 ---
 
 ## Features
 
-| Feature | Description |
-|---------|-------------|
-| 🟢 **Real-time status** | Color-coded indicators - green=up, amber=inactive, red=disabled |
-| 📁 **Grouped by switch** | Accordion layout organized by device with drag-to-combine grouping |
-| 🔍 **Global search** | Search across all ports, descriptions, and MAC addresses |
-| 🏷️ **VLAN filtering** | Filter ports by VLAN assignment |
-| 🔗 **LLDP/CDP neighbors** | See connected device information |
-| ♻️ **Auto-refresh** | Updates every 60 seconds |
-| 🌙 **Dark/Light mode** | Toggle between themes |
-| 📱 **Responsive** | Works on desktop and mobile |
-
----
-
-## Usage
-
-### Grouping Devices
-
-Organize related switches into custom groups using drag-and-drop:
-
-1. **Create a group** - Drag one device onto another to combine them into a new group
-2. **Add to existing group** - Drag additional devices into a group to add them
-3. **Rename groups** - Click the group name to edit it
-4. **Remove from group** - Drag a device out of the group back to the main list
-
-Groups are saved to your browser's localStorage and persist across sessions.
+- **Color-Coded Status** - Green (up), amber (inactive), red (disabled) at a glance
+- **High-Density Grid** - See 48+ ports per switch on one screen
+- **Device Grouping** - Organize switches into collapsible groups
+- **Global Search** - Find ports by description, MAC address, IP, or VLAN
+- **VLAN Mapping** - Filter ports by VLAN assignment
+- **Neighbor Detection** - LLDP/CDP peers displayed inline
+- **Auto-Refresh** - Updates every 60 seconds from LibreNMS API
+- **Dark/Light Mode** - Toggle themes
+- **Responsive Design** - Works on desktop and mobile
+- **Drag-Drop Grouping** - Combine switches into custom groups (saved locally)
 
 ---
 
 ## Quick Start
 
-### Prerequisites
-
-- A LibreNMS instance with API access enabled
-- Node.js 18+ (for manual installation)
-- OR a Proxmox host (for automated LXC deployment)
-
-### Option 1: Proxmox LXC Container (Recommended)
-
-Run this **on your Proxmox host**:
-
 ```bash
-curl -fsSL https://raw.githubusercontent.com/solomonneas/portgrid/main/scripts/proxmox_install.sh -o proxmox_install.sh
-chmod +x proxmox_install.sh
-./proxmox_install.sh
-```
-
-The script will automatically:
-- Create an LXC container with Ubuntu
-- Install Node.js 20 and build PortGrid
-- Configure a systemd service
-- Prompt you for LibreNMS credentials
-
-### Option 2: Manual Installation
-
-```bash
-# Clone and enter directory
+# Clone and install
 git clone https://github.com/solomonneas/portgrid.git
 cd portgrid
 
-# Configure environment
-cp .env.local.example .env.local
-# Edit .env.local with your LibreNMS URL and API token
-
-# Install and build
+# Install dependencies
 npm install
-npm run build
 
-# Run
-npm start
+# Configure LibreNMS connection
+cp .env.local.example .env.local
+# Edit .env.local with your LibreNMS host and API token
+
+# Start dev server
+npm run dev
 ```
 
-### Option 3: Linux Service
+Open **http://localhost:5184** in your browser
 
-```bash
-git clone https://github.com/solomonneas/portgrid.git
-cd portgrid
-sudo ./scripts/install_portgrid.sh
-```
+---
+
+## Tech Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Framework** | Next.js 15 | React framework with API routes |
+| **Runtime** | React 19 | Component library |
+| **Language** | TypeScript 5 | Type safety |
+| **Styling** | Tailwind CSS 4 | Utility-first CSS |
+| **State** | Zustand + TanStack Query | Client state and server queries |
+| **API** | LibreNMS REST API | Data source for port status |
+| **Icons** | Lucide React | Consistent icon set |
 
 ---
 
@@ -103,142 +72,142 @@ sudo ./scripts/install_portgrid.sh
 
 ### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `LIBRENMS_URL` | Your LibreNMS instance URL | ✓ |
-| `LIBRENMS_API_TOKEN` | LibreNMS API token | ✓ |
-| `PORT` | Port to run PortGrid on | Default: 3000 |
-| `DEVICE_EXCLUDE` | Glob patterns to exclude devices | Optional |
-| `DEVICE_INCLUDE` | Glob patterns to include (whitelist mode) | Optional |
+Edit `.env.local`:
 
-### Getting a LibreNMS API Token
+```bash
+NEXT_PUBLIC_LIBRENMS_HOST=https://librenms.example.com
+LIBRENMS_API_TOKEN=your-api-token-here
+NEXT_PUBLIC_REFRESH_INTERVAL=60000
+NEXT_PUBLIC_PORT_PAGE_SIZE=48
+```
 
-1. Log in to LibreNMS → **Settings** → **API** → **API Settings**
-2. Click **Create API access token**
-3. Copy the generated token
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_LIBRENMS_HOST` | LibreNMS server URL | (required) |
+| `LIBRENMS_API_TOKEN` | API token (keep secret) | (required) |
+| `NEXT_PUBLIC_REFRESH_INTERVAL` | Auto-refresh interval (ms) | 60000 |
+| `NEXT_PUBLIC_PORT_PAGE_SIZE` | Ports per page in grid | 48 |
+
+### LibreNMS API Token
+
+1. Log in to LibreNMS
+2. Settings > API > Create API Token
+3. Copy token to `.env.local`
 
 ---
 
-## Management
+## Port Status Indicators
 
-<details>
-<summary><strong>Proxmox Container Commands</strong></summary>
+| Color | Meaning | Details |
+|-------|---------|---------|
+| **Green** | Up | Port is active and operational |
+| **Amber** | Inactive | Port is configured but idle |
+| **Red** | Disabled | Port is administratively disabled |
+| **Gray** | Unknown | No status data received |
 
-```bash
-# Enter container shell
-pct enter <CTID>
-
-# Check service status
-pct exec <CTID> -- systemctl status portgrid
-
-# View logs
-pct exec <CTID> -- journalctl -u portgrid -f
-
-# Restart service
-pct exec <CTID> -- systemctl restart portgrid
-```
-
-</details>
-
-<details>
-<summary><strong>Systemd Service Commands</strong></summary>
-
-```bash
-systemctl status portgrid    # Check status
-journalctl -u portgrid -f    # View logs
-systemctl restart portgrid   # Restart
-systemctl stop portgrid      # Stop
-```
-
-</details>
-
-<details>
-<summary><strong>Updating PortGrid</strong></summary>
-
-```bash
-# Proxmox
-pct exec <CTID> -- bash -c "cd /opt/portgrid && git pull && npm install && npm run build && systemctl restart portgrid"
-
-# Manual
-cd /opt/portgrid && git pull && npm install && npm run build && systemctl restart portgrid
-```
-
-</details>
+Hover over a port to see:
+- Port name
+- Current VLAN
+- MAC addresses on port
+- Connected neighbors (LLDP/CDP)
+- Traffic stats (bytes in/out)
 
 ---
 
-## Architecture
+## Grouping Devices
 
-```
+Organize related switches:
+
+1. **Create Group** - Drag one switch onto another
+2. **Add to Group** - Drag more switches into the group
+3. **Rename** - Click group title to edit
+4. **Ungroup** - Drag switch out to main list
+
+Groups are saved to localStorage and persist across sessions.
+
+---
+
+## Search & Filter
+
+### Search
+
+Press `Ctrl+K` or click the search box. Search by:
+- **Port name** - "eth0", "Gi0/0/1"
+- **Description** - "Server uplink", "Guest WiFi"
+- **MAC address** - "aa:bb:cc:dd:ee:ff"
+- **IP address** - "192.0.2.10"
+- **VLAN** - "vlan 100"
+
+### Filter by VLAN
+
+Click **VLANs** sidebar to:
+- Filter all ports by VLAN
+- See VLAN statistics
+- Hide VLANs from view
+
+---
+
+## Project Structure
+
+```text
 portgrid/
 ├── app/
-│   ├── api/ports/route.ts    # LibreNMS API proxy
-│   └── page.tsx              # Main page with header/filters
-├── components/
-│   ├── switch-accordion.tsx  # Device list with drag-and-drop
-│   ├── port-grid-table.tsx   # Port table with sorting
-│   └── columns.tsx           # Column definitions
-├── hooks/
-│   ├── use-ports.ts          # TanStack Query for port data
-│   └── use-port-notes.ts     # localStorage for port notes
-├── lib/adapters/
-│   └── librenms.ts           # LibreNMS API adapter
-└── scripts/
-    ├── proxmox_install.sh    # Proxmox LXC installer
-    └── install_portgrid.sh   # Linux service installer
+│   ├── page.tsx              # Dashboard home
+│   ├── layout.tsx            # Root layout
+│   ├── api/
+│   │   ├── ports/route.ts    # Fetch ports from LibreNMS
+│   │   └── devices/route.ts  # Fetch device list
+│   └── components/
+│       ├── PortGrid.tsx      # Grid view
+│       ├── DeviceGroup.tsx   # Collapsible groups
+│       ├── Search.tsx        # Search bar
+│       └── StatusIndicator.tsx
+├── lib/
+│   ├── librenms.ts           # API client
+│   ├── store.ts              # Zustand state
+│   └── utils.ts              # Helpers
+├── types/
+│   └── index.ts              # TypeScript interfaces
+├── public/
+├── .env.local.example
+├── next.config.ts
+└── package.json
 ```
 
 ---
 
-## Troubleshooting
+## LibreNMS API Integration
 
-<details>
-<summary><strong>"Failed to fetch ports"</strong></summary>
+PortGrid fetches data from these LibreNMS endpoints:
 
-1. Verify your LibreNMS URL is correct and accessible
-2. Check your API token is valid
-3. Ensure LibreNMS allows API access from the PortGrid server
+**GET /api/v0/devices**
+List all monitored devices.
 
-</details>
+**GET /api/v0/devices/{device_id}/ports**
+Get all ports for a device with status.
 
-<details>
-<summary><strong>Container won't start</strong></summary>
+**GET /api/v0/devices/{device_id}/vlans**
+Get VLAN assignments for ports.
 
-```bash
-pct status <CTID>      # Check container status
-pct console <CTID>     # View container console
-```
+**GET /api/v0/ports?columns=*&limit=0**
+Advanced port queries (status, traffic, neighbors).
 
-</details>
-
-<details>
-<summary><strong>Service won't start</strong></summary>
-
-```bash
-journalctl -u portgrid -n 50    # Check for errors
-node --version                   # Verify Node.js
-cd /opt/portgrid && npm start   # Try running manually
-```
-
-</details>
+See [LibreNMS API docs](https://docs.librenms.org/API/Ports/) for full reference.
 
 ---
 
-## Tech Stack
+## Keyboard Shortcuts
 
-- **Framework:** Next.js 15 with App Router
-- **UI:** Tailwind CSS v4 + Shadcn/UI
-- **Data:** TanStack Query + TanStack Table
-- **Language:** TypeScript
+| Key | Action |
+|-----|--------|
+| `Ctrl+K` / `Cmd+K` | Open search |
+| `Esc` | Close search or dialogs |
+| `?` | Show help |
+| `L` | Toggle light/dark mode |
+| `G` | Focus group management |
 
 ---
 
 ## License
 
-MIT
-
----
-
-<p align="center">
-  Inspired by <a href="https://sourceforge.net/projects/switchmap/">SwitchMap</a>
-</p>
+MIT - see [LICENSE](LICENSE) for details.
