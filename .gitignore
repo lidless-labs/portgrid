@@ -49,3 +49,6 @@ FRONTEND_DESIGN.md
 POLISH_NOTES.md
 node_modules/
 .next/
+TASK_*.md
+IMPLEMENTATION_*.md
+*_SUMMARY.md
