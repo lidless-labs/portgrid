@@ -1,17 +1,23 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js" alt="Next.js 15" />
-  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white" alt="React 19" />
-  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/LibreNMS-API-00A86B?style=flat-square" alt="LibreNMS" />
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License" />
-
-  <a href="https://solomonneas.dev/projects/portgrid-network-visualization"><img src="https://img.shields.io/badge/Portfolio-solomonneas.dev-22c55e?style=flat-square" alt="Portfolio" /></a>
+  <img src="docs/assets/portgrid-banner.jpg" alt="portgrid banner" width="900">
 </p>
 
-# 🌐 Solomon's PortGrid
+<h1 align="center">🌐 Solomon's PortGrid</h1>
 
-**High-density switch port visualizer for LibreNMS with real-time status and VLAN mapping.**
+<p align="center"><strong>High-density switch port visualizer for LibreNMS with real-time status and VLAN mapping.</strong></p>
+
+<p align="center">
+  <a href="https://solomonneas.dev/projects/portgrid-network-visualization">solomonneas.dev</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js" alt="Next.js 15">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React 19">
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/LibreNMS-API-00A86B?style=for-the-badge" alt="LibreNMS">
+  <img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="MIT License">
+</p>
 
 PortGrid is a network dashboard that transforms dense port tables into a scannable, color-coded grid view. See all your switch ports at a glance, search by description or MAC address, and track VLAN assignments in real-time.
 
@@ -38,7 +44,7 @@ PortGrid is a network dashboard that transforms dense port tables into a scannab
 
 ```bash
 # Clone and install
-git clone https://github.com/solomonneas/portgrid.git
+git clone https://github.com/lidless-labs/portgrid.git
 cd portgrid
 
 # Install dependencies
@@ -53,20 +59,6 @@ npm run dev
 ```
 
 Open **http://localhost:5184** in your browser
-
----
-
-## Tech Stack
-
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Framework** | Next.js 15 | React framework with API routes |
-| **Runtime** | React 19 | Component library |
-| **Language** | TypeScript 5 | Type safety |
-| **Styling** | Tailwind CSS 4 | Utility-first CSS |
-| **State** | Zustand + TanStack Query | Client state and server queries |
-| **API** | LibreNMS REST API | Data source for port status |
-| **Icons** | Lucide React | Consistent icon set |
 
 ---
 
@@ -95,6 +87,20 @@ NEXT_PUBLIC_PORT_PAGE_SIZE=48
 1. Log in to LibreNMS
 2. Settings > API > Create API Token
 3. Copy token to `.env.local`
+
+---
+
+## Tech Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Framework** | Next.js 15 | React framework with API routes |
+| **Runtime** | React 19 | Component library |
+| **Language** | TypeScript 5 | Type safety |
+| **Styling** | Tailwind CSS 4 | Utility-first CSS |
+| **State** | Zustand + TanStack Query | Client state and server queries |
+| **API** | LibreNMS REST API | Data source for port status |
+| **Icons** | Lucide React | Consistent icon set |
 
 ---
 
