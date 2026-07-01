@@ -11,12 +11,12 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js" alt="Next.js 15">
-  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React 19">
-  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
-  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
-  <img src="https://img.shields.io/badge/LibreNMS-API-00A86B?style=for-the-badge" alt="LibreNMS">
-  <img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="MIT License">
+  <img src="https://shieldcn.dev/badge/Next.js-15-black.svg?logo=next.js" alt="Next.js 15">
+  <img src="https://shieldcn.dev/badge/React-19-61DAFB.svg?logo=react&logoColor=white" alt="React 19">
+  <img src="https://shieldcn.dev/badge/TypeScript-5-3178C6.svg?logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://shieldcn.dev/badge/Tailwind_CSS-4-06B6D4.svg?logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
+  <img src="https://shieldcn.dev/badge/LibreNMS-API-00A86B.svg" alt="LibreNMS">
+  <img src="https://shieldcn.dev/badge/license-MIT-green.svg" alt="MIT License">
 </p>
 
 PortGrid is a network dashboard that transforms dense port tables into a scannable, color-coded grid view. See all your switch ports at a glance, search by description or MAC address, and track VLAN assignments in real-time.
