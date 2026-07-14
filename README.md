@@ -2,6 +2,9 @@
   <img src="docs/assets/portgrid-banner.jpg" alt="portgrid banner" width="900">
 </p>
 
+<p align="center">
+  <a href="https://lidless.dev"><img src="docs/assets/marks/portgrid-circle.png" width="48" alt="Lidless Labs"></a>
+</p>
 <h1 align="center">🌐 Solomon's PortGrid</h1>
 
 <p align="center"><strong>High-density switch port visualizer for LibreNMS with real-time status and VLAN mapping.</strong></p>
@@ -219,3 +222,11 @@ See [LibreNMS API docs](https://docs.librenms.org/API/Ports/) for full reference
 ## License
 
 MIT - see [LICENSE](LICENSE) for details.
+
+---
+
+<p align="center"><a href="https://lidless.dev">Part of <strong>Lidless Labs</strong></a> &middot; the eye does not close</p>
+
+<p align="center"><sub><strong>Network:</strong> <a href="https://github.com/lidless-labs/librenmsctrl">librenmsctrl</a> &middot; <a href="https://github.com/lidless-labs/n8nctrl">n8nctrl</a> &middot; <a href="https://github.com/lidless-labs/watchtower">watchtower</a> &middot; <a href="https://github.com/lidless-labs/cutsheet">cutsheet</a> &middot; <a href="https://github.com/lidless-labs/eero-cli">eero-cli</a></sub></p>
+
+<p align="center"><sub><a href="https://lidless.dev">All tools</a> &middot; <a href="https://github.com/lidless-labs">Lidless Labs on GitHub</a></sub></p>
