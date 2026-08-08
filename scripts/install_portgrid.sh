@@ -5,6 +5,9 @@
 
 set -e
 
+INSTALLER_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "$INSTALLER_SCRIPT_DIR/portgrid_env.sh"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -78,6 +81,27 @@ DEFAULT_PORT=3000
 read -p "Port to run PortGrid on [$DEFAULT_PORT]: " PORT
 PORT=${PORT:-$DEFAULT_PORT}
 
+# Get PortGrid auth configuration
+echo ""
+echo -e "${YELLOW}PortGrid Authentication${NC}"
+DEFAULT_AUTH_USERNAME="portgrid"
+read -p "Browser username [$DEFAULT_AUTH_USERNAME]: " PORTGRID_AUTH_USERNAME
+PORTGRID_AUTH_USERNAME=${PORTGRID_AUTH_USERNAME:-$DEFAULT_AUTH_USERNAME}
+
+generate_secret() {
+    node -e "process.stdout.write(require('node:crypto').randomBytes(48).toString('base64url'))"
+}
+
+read -s -p "Browser password (leave blank to generate): " PORTGRID_AUTH_PASSWORD
+echo ""
+GENERATED_BROWSER_PASSWORD=0
+if [ -z "$PORTGRID_AUTH_PASSWORD" ]; then
+    PORTGRID_AUTH_PASSWORD=$(generate_secret)
+    GENERATED_BROWSER_PASSWORD=1
+fi
+
+PORTGRID_API_TOKEN=$(generate_secret)
+
 # Create installation directory
 echo ""
 echo -e "${YELLOW}Creating installation directory...${NC}"
@@ -95,10 +119,14 @@ fi
 
 # Create .env.local
 echo -e "${YELLOW}Creating environment configuration...${NC}"
-cat > "$INSTALL_DIR/.env.local" << EOF
-LIBRENMS_URL=$LIBRENMS_URL
-LIBRENMS_API_TOKEN=$LIBRENMS_TOKEN
-EOF
+umask 077
+build_portgrid_env_payload \
+    "$LIBRENMS_URL" \
+    "$LIBRENMS_TOKEN" \
+    "$PORTGRID_AUTH_USERNAME" \
+    "$PORTGRID_AUTH_PASSWORD" \
+    "$PORTGRID_API_TOKEN" > "$INSTALL_DIR/.env.local"
+chmod 600 "$INSTALL_DIR/.env.local"
 
 # Install dependencies
 echo ""
@@ -128,6 +156,7 @@ Restart=on-failure
 RestartSec=10
 Environment=NODE_ENV=production
 Environment=PORT=$PORT
+EnvironmentFile=$INSTALL_DIR/.env.local
 
 [Install]
 WantedBy=multi-user.target
@@ -148,6 +177,11 @@ if systemctl is-active --quiet portgrid; then
     echo -e "${GREEN}========================================${NC}"
     echo ""
     echo -e "Access PortGrid at: ${BLUE}http://$(hostname -I | awk '{print $1}'):$PORT${NC}"
+    echo -e "Browser username: ${BLUE}$PORTGRID_AUTH_USERNAME${NC}"
+    if [ "$GENERATED_BROWSER_PASSWORD" -eq 1 ]; then
+        echo -e "Generated browser password: stored in ${YELLOW}$INSTALL_DIR/.env.local${NC} (mode 600)"
+    fi
+    echo -e "API bearer token: stored in ${YELLOW}$INSTALL_DIR/.env.local${NC} (mode 600)"
     echo ""
     echo -e "Useful commands:"
     echo -e "  ${YELLOW}systemctl status portgrid${NC}  - Check service status"

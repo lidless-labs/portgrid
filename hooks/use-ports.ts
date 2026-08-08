@@ -2,7 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import type { PortsApiResponse } from "@/types/port";
 
 async function fetchPorts(): Promise<PortsApiResponse> {
-  const response = await fetch("/api/ports");
+  const response = await fetch("/api/ports", {
+    credentials: "same-origin",
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch ports");
   }
