@@ -5,6 +5,9 @@
 
 set -e
 
+INSTALLER_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "$INSTALLER_SCRIPT_DIR/portgrid_env.sh"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -147,6 +150,27 @@ fi
 
 read -p "PortGrid web port [3000]: " PORTGRID_PORT
 PORTGRID_PORT=${PORTGRID_PORT:-3000}
+
+# PortGrid auth configuration
+echo ""
+echo -e "${CYAN}PortGrid Authentication${NC}"
+DEFAULT_AUTH_USERNAME="portgrid"
+read -p "Browser username [$DEFAULT_AUTH_USERNAME]: " PORTGRID_AUTH_USERNAME
+PORTGRID_AUTH_USERNAME=${PORTGRID_AUTH_USERNAME:-$DEFAULT_AUTH_USERNAME}
+
+generate_secret() {
+    openssl rand -base64 48 | tr -d '\n'
+}
+
+read -s -p "Browser password (leave blank to generate): " PORTGRID_AUTH_PASSWORD
+echo ""
+GENERATED_BROWSER_PASSWORD=0
+if [ -z "$PORTGRID_AUTH_PASSWORD" ]; then
+    PORTGRID_AUTH_PASSWORD=$(generate_secret)
+    GENERATED_BROWSER_PASSWORD=1
+fi
+
+PORTGRID_API_TOKEN=$(generate_secret)
 
 # ============================================
 # Template Selection/Download
@@ -323,10 +347,13 @@ pct exec "$CTID" -- bash -c "git clone https://github.com/solomonneas/portgrid.g
 
 # Create environment file
 echo -e "${YELLOW}Creating environment configuration...${NC}"
-pct exec "$CTID" -- bash -c "cat > /opt/portgrid/.env.local << 'ENVEOF'
-LIBRENMS_URL=$LIBRENMS_URL
-LIBRENMS_API_TOKEN=$LIBRENMS_TOKEN
-ENVEOF"
+PORTGRID_ENV_PAYLOAD=$(build_portgrid_env_payload \
+    "$LIBRENMS_URL" \
+    "$LIBRENMS_TOKEN" \
+    "$PORTGRID_AUTH_USERNAME" \
+    "$PORTGRID_AUTH_PASSWORD" \
+    "$PORTGRID_API_TOKEN")
+write_proxmox_env_local "$CTID" /opt/portgrid/.env.local "$PORTGRID_ENV_PAYLOAD"
 
 # Install dependencies
 echo ""
@@ -359,6 +386,7 @@ Restart=on-failure
 RestartSec=10
 Environment=NODE_ENV=production
 Environment=PORT=$PORTGRID_PORT
+EnvironmentFile=/opt/portgrid/.env.local
 
 [Install]
 WantedBy=multi-user.target
@@ -395,6 +423,11 @@ echo -e "  ${CYAN}Root Password:${NC} $CT_PASSWORD"
 echo ""
 echo -e "PortGrid Access:"
 echo -e "  ${BLUE}http://$CT_IP_ADDR:$PORTGRID_PORT${NC}"
+echo -e "  Browser username: ${CYAN}$PORTGRID_AUTH_USERNAME${NC}"
+if [ "$GENERATED_BROWSER_PASSWORD" -eq 1 ]; then
+    echo -e "  Generated browser password: stored in ${YELLOW}/opt/portgrid/.env.local${NC} inside the container (mode 600)"
+fi
+echo -e "  API bearer token: stored in ${YELLOW}/opt/portgrid/.env.local${NC} inside the container (mode 600)"
 echo ""
 echo -e "Useful Commands:"
 echo -e "  ${YELLOW}pct enter $CTID${NC}                    - Enter container shell"

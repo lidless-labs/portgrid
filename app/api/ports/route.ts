@@ -1,35 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createDataSourceAdapter } from "@/lib/adapters";
-
-function checkAuth(request: NextRequest): NextResponse | null {
-  const expectedToken = process.env.PORTGRID_API_TOKEN;
-  if (!expectedToken) {
-    // No token configured — dev mode, allow unauthenticated
-    return null;
-  }
-
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
-  }
-
-  const token = authHeader.slice("Bearer ".length);
-  if (token !== expectedToken) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
-  }
-
-  return null;
-}
+import {
+  authorizePortGridRequest,
+  createPortGridUnauthorizedHeaders,
+} from "@/lib/server-auth";
 
 export async function GET(request: NextRequest) {
-  const authError = checkAuth(request);
-  if (authError) return authError;
+  const auth = authorizePortGridRequest(request.headers);
+  if (!auth.authorized) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      {
+        status: auth.status,
+        headers: createPortGridUnauthorizedHeaders(auth),
+      }
+    );
+  }
 
   try {
     console.log("API /ports called, DATA_SOURCE:", process.env.DATA_SOURCE || "librenms (default)");
