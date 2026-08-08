@@ -53,9 +53,9 @@ cd portgrid
 # Install dependencies
 npm install
 
-# Configure LibreNMS connection
+# Configure data source connection
 cp .env.local.example .env.local
-# Edit .env.local with your LibreNMS host and API token
+# Edit .env.local with your LibreNMS URL and API token
 
 # Start dev server
 npm run dev
@@ -69,21 +69,34 @@ Open **http://localhost:5184** in your browser
 
 ### Environment Variables
 
-Edit `.env.local`:
+Copy `.env.local.example` to `.env.local` and set the variables for your data source. All variables below are read on the server only (API routes); LibreNMS and NetDisco credentials are never sent to the browser.
 
 ```bash
-NEXT_PUBLIC_LIBRENMS_HOST=https://librenms.example.com
+# Data source: librenms (default) or netdisco
+DATA_SOURCE=librenms
+
+# LibreNMS (required when DATA_SOURCE=librenms)
+LIBRENMS_URL=https://librenms.example.com
 LIBRENMS_API_TOKEN=your-api-token-here
-NEXT_PUBLIC_REFRESH_INTERVAL=60000
-NEXT_PUBLIC_PORT_PAGE_SIZE=48
+
+# NetDisco (required when DATA_SOURCE=netdisco)
+NETDISCO_URL=https://netdisco.example.com
+NETDISCO_API_KEY=your-api-key-here
+
+# Optional device filtering (wildcard patterns on hostname or IP)
+DEVICE_EXCLUDE=
+DEVICE_INCLUDE=
 ```
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `NEXT_PUBLIC_LIBRENMS_HOST` | LibreNMS server URL | (required) |
-| `LIBRENMS_API_TOKEN` | API token (keep secret) | (required) |
-| `NEXT_PUBLIC_REFRESH_INTERVAL` | Auto-refresh interval (ms) | 60000 |
-| `NEXT_PUBLIC_PORT_PAGE_SIZE` | Ports per page in grid | 48 |
+| `DATA_SOURCE` | Upstream API: `librenms` or `netdisco` | `librenms` |
+| `LIBRENMS_URL` | LibreNMS server URL (server-side only) | (required for LibreNMS) |
+| `LIBRENMS_API_TOKEN` | LibreNMS API token (server-side only) | (required for LibreNMS) |
+| `NETDISCO_URL` | NetDisco server URL (server-side only) | (required for NetDisco) |
+| `NETDISCO_API_KEY` | NetDisco API key (server-side only) | (required for NetDisco) |
+| `DEVICE_EXCLUDE` | Comma-separated hostname/IP patterns to hide | (none) |
+| `DEVICE_INCLUDE` | Comma-separated hostname/IP patterns to show (whitelist) | (none) |
 
 ### LibreNMS API Token
 
