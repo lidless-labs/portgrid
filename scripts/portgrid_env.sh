@@ -29,6 +29,20 @@ validate_portgrid_env_value() {
     fi
 }
 
+# Read one hidden line into the variable named by $1, exactly as typed.
+# IFS= keeps leading and trailing whitespace and -r keeps backslashes.
+# Returns read's status, so EOF still stops an installer running set -e.
+read_portgrid_secret() {
+    local __portgrid_secret_var="$1"
+    local __portgrid_secret_prompt="$2"
+    local __portgrid_secret_value=""
+    local __portgrid_secret_status=0
+
+    IFS= read -r -s -p "$__portgrid_secret_prompt" __portgrid_secret_value || __portgrid_secret_status=$?
+    printf -v "$__portgrid_secret_var" '%s' "$__portgrid_secret_value"
+    return "$__portgrid_secret_status"
+}
+
 append_portgrid_env_line() {
     local name="$1"
     local value="$2"

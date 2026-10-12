@@ -20,6 +20,16 @@ async function assertInstallerAuthConfig(scriptPath) {
   assert.match(helper, /chmod 600 "\$1"/);
   assert.doesNotMatch(script, /NEXT_PUBLIC_.*TOKEN/);
   assert.doesNotMatch(script, /PORTGRID_AUTH_BYPASS=development/);
+  assert.match(
+    script,
+    /^read_portgrid_secret PORTGRID_AUTH_PASSWORD "Browser password/m,
+    "installer should read the browser password through read_portgrid_secret"
+  );
+  assert.doesNotMatch(
+    script,
+    /\bread\b[^\n]*PORTGRID_AUTH_PASSWORD/,
+    "installer should not read the browser password with a bare read builtin"
+  );
 
   const envWrite = script.search(/build_portgrid_env_payload[\s\S]+\.env\.local|write_proxmox_env_local[\s\S]+\.env\.local/);
   const networkAdvertise = Math.max(
@@ -117,6 +127,48 @@ test("PortGrid env payload single-quotes values without corrupting spaces, backs
       "",
     ].join("\n")
   );
+});
+
+async function readBrowserPasswordFromStdin(input) {
+  const helperPath = new URL("../scripts/portgrid_env.sh", import.meta.url).pathname;
+  const run = execFileAsync("bash", [
+    "-c",
+    `
+      set -e
+      . "$1"
+      read_portgrid_secret PORTGRID_AUTH_PASSWORD "Browser password (leave blank to generate): "
+      build_portgrid_env_payload \\
+        "https://librenms.example.test" \\
+        "librenms-token" \\
+        "portgrid-user" \\
+        "$PORTGRID_AUTH_PASSWORD" \\
+        "api-token"
+    `,
+    "bash",
+    helperPath,
+  ]);
+  run.child.stdin.end(input);
+  const { stdout } = await run;
+  return stdout;
+}
+
+test("installer password prompt stores the typed line exactly, including backslashes and surrounding spaces", async () => {
+  const cases = [
+    { input: "pa\\ss\n", expected: "pa\\ss" },
+    { input: "  pass\\word  \n", expected: "  pass\\word  " },
+    { input: "trailing\\\nnext-line\n", expected: "trailing\\" },
+    { input: "\n", expected: "" },
+  ];
+
+  for (const { input, expected } of cases) {
+    const stdout = await readBrowserPasswordFromStdin(input);
+    const passwordLines = stdout.split("\n").filter((line) => line.startsWith("PORTGRID_AUTH_PASSWORD="));
+    assert.deepEqual(passwordLines, [`PORTGRID_AUTH_PASSWORD='${expected}'`], `input ${JSON.stringify(input)}`);
+  }
+});
+
+test("installer password prompt still fails under set -e when input ends without a newline", async () => {
+  await assert.rejects(readBrowserPasswordFromStdin("no-newline"), { code: 1 });
 });
 
 test("Proxmox installer sends secrets through stdin, not pct argv or output", async () => {
