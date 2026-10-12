@@ -92,7 +92,7 @@ generate_secret() {
     node -e "process.stdout.write(require('node:crypto').randomBytes(48).toString('base64url'))"
 }
 
-read -s -p "Browser password (leave blank to generate): " PORTGRID_AUTH_PASSWORD
+read_portgrid_secret PORTGRID_AUTH_PASSWORD "Browser password (leave blank to generate): "
 echo ""
 GENERATED_BROWSER_PASSWORD=0
 if [ -z "$PORTGRID_AUTH_PASSWORD" ]; then

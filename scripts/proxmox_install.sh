@@ -162,7 +162,7 @@ generate_secret() {
     openssl rand -base64 48 | tr -d '\n'
 }
 
-read -s -p "Browser password (leave blank to generate): " PORTGRID_AUTH_PASSWORD
+read_portgrid_secret PORTGRID_AUTH_PASSWORD "Browser password (leave blank to generate): "
 echo ""
 GENERATED_BROWSER_PASSWORD=0
 if [ -z "$PORTGRID_AUTH_PASSWORD" ]; then
